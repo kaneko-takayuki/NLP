@@ -2,6 +2,7 @@
 
 import os
 import sys
+import argparse
 
 from ml.deeplearning.j_bow_ffnn import JBOWFFNN
 from tsukuba_corpus.functions import read_tsukuba_corpus
@@ -51,4 +52,19 @@ def main(n_in, n_mid, n_out, batchsize, gpu, n_epoch):
             print("完了")
 
 if __name__ == '__main__':
-    main(900, 1000, 2, 20, 0, 3)
+    # 引数パース
+    parser = argparse.ArgumentParser(description='FFNN_parameter')
+    parser.add_argument("--n_in", "-i", type=int, default=900)
+    parser.add_argument("--n_mid", "-m", type=int, default=1000)
+    parser.add_argument("--n_out", "-o", type=int, default=2)
+    parser.add_argument("--batchsize", "-b", type=int, default=30)
+    parser.add_argument("--gpu", "-g", type=int, default=-1)
+    parser.add_argument("--n_epoch", "-e", type=int, default=20)
+    args = parser.parse_args()
+
+    main(n_in=args.n_in,
+         n_mid=args.n_mid,
+         n_out=args.n_out,
+         batchsize=args.batchsize,
+         gpu=args.gpu,
+         n_epoch=args.n_epoch)
