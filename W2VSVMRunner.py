@@ -44,7 +44,7 @@ class W2VSVMRunner(RunnerBases.RunnerBases):
         """
         SVMによるテストを行う
         :param w: ウィンドウサイズ
-        :param dir_name: 出力ディレクトリ
+        :param file_name: 出力ディレクトリ
         :return: なし
         """
         # 学習済みか確認

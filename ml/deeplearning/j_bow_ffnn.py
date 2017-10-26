@@ -39,7 +39,7 @@ class JBOWFFNN(DLBases):
         for _sentence in self.test_sentences:
             func.add_dir(_sentence)
         # 入力ベクトルリストを取得
-        inputs = func.bow(sentence)
+        inputs = [func.bow(sentence)]
 
         # vectorsと同じ要素数のラベルリストを生成
         labels = [label]
