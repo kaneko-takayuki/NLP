@@ -57,7 +57,7 @@ def sentence_vector(sentence, window_size=1):
         words = spliter.words(sentence)
         # それぞれの単語についてベクトルを取得
         for word in words:
-            _sentence_vector.extend(word_vector(word))
+            completion_vector.extend(word_vector(word))
         # 補完関数が設定されていなかったら、エラー処理
         if w2v.completion_func is None:
             sys.stderr.write("KeyError: 補完用のコールバック関数を指定してください。\n")

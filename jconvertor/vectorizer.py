@@ -45,9 +45,9 @@ def sentence_vector(sentence, window_size=1):
     :param window_size: 切り取るウィンドウサイズ <class: 'int'> 
     :return: 文章から得られるフレーズベクトルリスト <class: 'list'>
     """
-    _sentence_vector = []
-    count = spliter.word_count(sentence)
-    phrases = spliter.phrases(sentence, window_size)
+    _sentence_vector = []  # 文章ベクトル
+    count = spliter.word_count(sentence)  # 単語数
+    phrases = spliter.phrases(sentence, window_size)  # フレーズリスト
 
     if len(phrases) == 0:
         # window_sizeが単語数より大きくて、フレーズが得られなかった

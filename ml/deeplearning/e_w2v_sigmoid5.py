@@ -4,7 +4,6 @@ import copy
 import numpy as np
 import six
 import chainer
-import chainer.functions as F
 from chainer import optimizers
 from chainer import serializers
 from chainer import cuda
@@ -74,8 +73,13 @@ class EW2VSigmoid5(MLBases):
                 train_labels.extend(j_label)
 
             # リストからnumpy化
-            train_inputs = np.asarray(train_inputs).astype(np.float32)
-            train_labels = np.asarray(train_labels).astype(np.float32)
+            try:
+                train_inputs = np.asarray(train_inputs).astype(np.float32)
+                train_labels = np.asarray(train_labels).astype(np.float32)
+            except ValueError:
+                for v in train_inputs:
+                    print(len(v))
+
 
             # 学習処理
             train_inputs = chainer.Variable(self.xp.asarray(train_inputs))
