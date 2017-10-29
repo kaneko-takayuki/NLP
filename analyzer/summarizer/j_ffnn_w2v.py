@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from analyzer.summarizer import consult_func as cf
+from analyzer import summarizer
 
 
 def summarize_ffnn_w2v(input_files, output_file):
@@ -51,7 +51,7 @@ def summarize_ffnn_w2v(input_files, output_file):
             sentence_result.append(window_result)
 
         # それぞれの結果から一つに束ねる
-        predict_label = cf.consult_func(sentence_result=sentence_result)
+        predict_label = summarizer.consult_func(sentence_result=sentence_result)
 
         # 結果ファイルに出力
         with open(output_file, 'a') as o:
