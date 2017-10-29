@@ -29,10 +29,10 @@ def calculate_accuracy(input_file):
 if __name__ == "__main__":
     # FFNN用
     """
-    window = ['Window3', 'Window5', 'Window7', 'MultiWindow35', 'MultiWindow37', 'MultiWindow57', 'MultiWindow357']
+    window = ['window3', 'window5', 'window7', 'multi_window35', 'multi_window37', 'multi_window57', 'multi_window357']
 
     for w in window:
-        base_path = Constant.BASE_PATH + "tsukuba_corpus/LSTM_W2V/" + w + "/zero/shaped_out/softmax/cross_validation"
+        base_path = Constant.BASE_PATH + "tsukuba_corpus/LSTM_W2V/" + w + "/zero/summarized_out/softmax/cross_validation"
         for k in range(1, 6):  # 交差検定の番号
             accuracies = []  # 交差検定毎に結果をまとめる
             print("{}分割目".format(k))
@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
     # LSTM用
     """
-    base_path = Constant.BASE_PATH + "tsukuba_corpus/LSTM_W2V/shaped_out/cross_validation"
+    base_path = Constant.BASE_PATH + "tsukuba_corpus/LSTM_W2V/summarized_out/cross_validation"
     for k in range(1, 6):
         accuracies = []  # 交差検定毎に結果をまとめる
         print("{}分割目".format(k))
@@ -82,10 +82,10 @@ if __name__ == "__main__":
     """
 
     # SVMW2V用
-    window = ['Window3', 'Window5', 'Window7', 'MultiWindow35', 'MultiWindow37', 'MultiWindow57', 'MultiWindow357']
+    window = ['window3', 'window5', 'window7', 'multi_window35', 'multi_window37', 'multi_window57', 'multi_window357']
     for w in window:
         accuracies = []
-        base_path = base_path = Constant.BASE_PATH + "tsukuba_corpus/SVM_W2V/" + w + "/shaped_out/majority/"
+        base_path = base_path = Constant.BASE_PATH + "tsukuba_corpus/SVM_W2V/" + w + "/summarized_out/majority/"
         for k in range(1, 6):
             input_file = base_path + "cross_validation" + str(k) + ".txt"
             accuracy = calculate_accuracy(input_file=input_file)
