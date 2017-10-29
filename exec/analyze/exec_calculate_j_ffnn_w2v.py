@@ -12,7 +12,6 @@ def calculate_accuracy(experiment_dir):
     """
     まとめた結果ファイルに対して、精度を計算してファイルに出力
     :param experiment_dir: 実験結果ファイルが格納されているディレクトリ
-    :param output_file: 出力ファイル
     :return: なし
     """
     for i in range(1, 6):
