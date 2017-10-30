@@ -23,8 +23,15 @@ def correct(file_name):
 def main():
     # プロジェクトディレクトリを取得
     base_path = os.path.dirname(os.path.abspath(__file__)) + "/../"
+    _window = ["window3", "window5", "window5"]
 
-    correct(base_path + "test.tsv")
+    for w in _window:
+        for i in range(1, 6):
+            for j in range(1, 31):
+                file_name = base_path + "amazon_corpus/Sigmoid_W2V/" + w + "/zero/out/cross_validation" + str(i) + \
+                            "/epoch" + str(j) + ".tsv"
+
+                correct(file_name)
 
 
 if __name__ == '__main__':

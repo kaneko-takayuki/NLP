@@ -72,7 +72,7 @@ def ffnn_consult_majority5(sentence_result):
     :return: 予測極性
     """
     # 評価の個数をそれぞれ数える
-    label_n = [0 for _ in 5]
+    label_n = [0 for _ in range(5)]
     predict_label = 0  # 予測ラベル
     max_n = 0  # 予測フレーズの個数
 

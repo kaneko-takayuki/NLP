@@ -48,7 +48,7 @@ def summarize(input_files, output_file):
 
                 # フレーズ結果の格納
                 window_result.append([float(items[0]), float(items[1]), float(items[2]),
-                                      float(items[3]), items[4]])
+                                      float(items[3]), float(items[4])])
             sentence_result.append(window_result)
 
         # それぞれの結果から一つに束ねる
