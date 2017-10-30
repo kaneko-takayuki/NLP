@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import argparse
 import add_path
 from analyzer import summarizer
@@ -21,7 +22,17 @@ def summarize(input_files, output_file):
 
 
 def main(input_files, output_file):
-    pass
+    base_path = os.path.dirname(os.path.abspath(__file__)) + "/../../"
+    _window = ["Window3", "Window5", "Window7", "Window9", "Window11", "Window13"]
+
+    for w in _window:
+        for i in range(1, 6):
+            for j in range(1, 101):
+                experiment_dir = base_path + "amazon_corpus/FFNN_W2V/" + w + "/random/"
+                input_file = experiment_dir + "out/cross_validation" + str(i) + "/epoch" + str(j) + ".txt"
+                output_file = experiment_dir + "summarized_out/cross_validation" + str(i) + "/epoch" + str(j) + ".tsv"
+                summarize([input_file], output_file)
+
 
 
 if __name__ == '__main__':
