@@ -4,7 +4,6 @@ import os
 import sys
 import argparse
 
-from econvertor import word2vec as w2v
 from econvertor.word2vec import functions as w2v_func
 from ml.deeplearning.e_w2v_sigmoid5 import EW2VSigmoid5
 from amazon_corpus.functions import read_amazon_corpus
@@ -35,15 +34,15 @@ def main(k_start, k_end, n_in, n_mid, batchsize, gpu, window_size, n_epoch, comp
 
     # 実験で使用する補完関数を設定
     if completion == "zero":
-        w2v.set_completion_func(w2v_func.create_zero_vector)
+        w2v_func.set_completion_func(w2v_func.create_zero_vector)
     elif completion == "random":
-        w2v.set_completion_func(w2v_func.create_random_vector)
+        w2v_func.set_completion_func(w2v_func.create_random_vector)
     else:
         sys.stderr.write("補完関数の指定方法を見なおしてください\n")
         exit()
 
     # 実験で使用するword2vecモデルを読み込む
-    w2v.load_w2v("w2v_model/GoogleNews-vectors-negative300.bin")
+    w2v_func.load_w2v("/home/kaneko-takayuki/NLP/w2v_model/GoogleNews-vectors-negative300.bin")
 
     # k_start〜k_endで5分割交差検定
     for i in range(k_start, k_end):
@@ -91,7 +90,7 @@ if __name__ == '__main__':
     parser.add_argument("--gpu", "-g", type=int, default=-1)
     parser.add_argument("--window_size", "-w", type=int, default=3)
     parser.add_argument("--n_epoch", "-e", type=int, default=20)
-    parser.add_argument("--completion", "-c", type=str, default="zero")
+    parser.add_argument("--completion", "-c", type=str, default="random")
     args = parser.parse_args()
 
     main(k_start=args.k_start,
