@@ -90,7 +90,6 @@ def ffnn_consult_majority5(sentence_result):
     return predict_label
 
 
-
 def svm_consult_softmax(sentence_result):
     """
     softmaxによってまとめる
@@ -136,3 +135,32 @@ def svm_consult_majority(sentence_result):
         return 1  # ポジティブ判定
     else:
         return 0  # ネガティブ判定
+
+
+def sigmoid5_consult_majority(sentence_result):
+    """
+    sigmoid5の出力について、多数決によってまとめる
+    :param sentence_result: 文に対する出力の集合
+    :return: 予測極性
+    """
+    # 1〜5の予測ラベルの個数
+    label_n = [0 for _ in range(5)]
+
+    # フレーズ毎に参照していく
+    for window_result in sentence_result:
+        for phrase_result in window_result:
+            max_phrase_label_pred = 0.0  # フレーズにおけるラベル確率の最大
+            phrase_label = 0  # 予測ラベル
+            for i in range(5):
+                if max_phrase_label_pred < phrase_result[i]:
+                    phrase_label = i
+            label_n[phrase_label] += 1
+
+    # 1〜5の予測ラベルの個数を比較し、文章の予測ラベルを返す
+    max_sentence_label_n = 0.0
+    sentence_label = 0
+    for i in range(5):
+        if max_sentence_label_n < label_n[i]:
+            sentence_label = i
+
+    return sentence_label
