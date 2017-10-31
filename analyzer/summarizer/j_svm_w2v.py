@@ -3,7 +3,7 @@
 from analyzer.summarizer import consult_function as cf
 
 
-def summarize_svm_w2v(input_files, output_file):
+def summarize(input_files, output_file):
     """
     SVMで出した出力をまとめる
     :param input_files: まとめる対象のファイルリスト

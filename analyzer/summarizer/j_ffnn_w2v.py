@@ -3,7 +3,7 @@
 from analyzer import summarizer
 
 
-def summarize_ffnn_w2v(input_files, output_file):
+def summarize(input_files, output_file):
     """
     日本語用のFFNNで出力した出力をまとめる(ポジネガ)
     :param input_files: まとめる対象のファイルリスト

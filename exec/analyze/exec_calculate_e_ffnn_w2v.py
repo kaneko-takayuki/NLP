@@ -49,9 +49,9 @@ def main():
     補完関数: {random, random, exception}
     合議関数: {多数決, softmax}
     """
-    ws_list = ["Window3", "Window5", "Window7", "Window9", "Window11", "Window13"]
+    ws_list = ["window3", "window5", "window7", "window9", "window11", "window13"]
     completion_list = ["random"]
-    summarize_list = ["majority"]
+    summarize_list = ["majority", "softmax"]
 
     for ws in ws_list:
         for completion in completion_list:

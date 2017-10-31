@@ -90,6 +90,9 @@ def ffnn_consult_majority5(sentence_result):
     return predict_label
 
 
+def ffnn_consult_softmax5(sentence_result):
+    pass
+
 def svm_consult_softmax(sentence_result):
     """
     softmaxによってまとめる
