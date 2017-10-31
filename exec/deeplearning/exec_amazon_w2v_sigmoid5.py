@@ -47,7 +47,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
 
     # k_start〜k_endで5分割交差検定
     # k: k回目の検定
-    for k in range(start_k, end_k):
+    for k in range(start_k, end_k+1):
         print("-------------------")
         print(str(k) + " / 5 分割目")
         print("-------------------")
@@ -69,7 +69,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
         # あらかじめ5分割しておいたデータセットを学習用とテスト用に振り分ける
         # 5/4が学習用、5/1がテスト用
         for i in range(1, 6):
-            _sentence, _label = read_amazon_corpus(constants.AMAZON_BOOKDATA_DIR + "dataset" + str(j) + ".tsv")
+            _sentence, _label = read_amazon_corpus(constants.AMAZON_BOOKDATA_DIR + "dataset" + str(i) + ".tsv")
             if k != i:
                 train_sentences.extend(_sentence)
                 train_labels.extend(_label)
