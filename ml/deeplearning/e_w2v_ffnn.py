@@ -46,7 +46,18 @@ class EW2VFFNN(DLBases):
         return inputs, labels
 
     def output(self, file_name, sentence, corr_label, pred_labels):
+        """
+        結果をファイルに出力する
+        :param file_name: 出力ファイル
+        :param sentence: 文章
+        :param corr_label: 正解ラベル
+        :param pred_labels: 予測確率
+        :return: なし
+        """
+        # フレーズリストを取得
         phrases = spliter.phrases(sentence, self.window_size)
+
+        # 出力
         with open(file_name, 'a') as f:
             f.write(str(corr_label) + '\t' + sentence + '\n')
 

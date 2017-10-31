@@ -21,6 +21,7 @@ class JBOWSVM(MLBases):
         train_inputs = []
         train_labels = []
 
+        # batchsize個毎にデータを取り出し、学習を行う
         for (sentence, label) in zip(self.train_sentences, self.train_labels):
             i_input, i_label = self.convert(sentence, label)
             train_inputs.extend(i_input)
@@ -40,6 +41,7 @@ class JBOWSVM(MLBases):
         :return: なし
         """
 
+        # 1つずつデータを取り出し、テストを行う
         for (sentence, label) in zip(self.test_sentences, self.test_labels):
             # テストを行うデータ
             i_input, i_label = self.convert(sentence, label)
@@ -72,6 +74,14 @@ class JBOWSVM(MLBases):
         return inputs, labels
 
     def output(self, file_name, sentence, corr_label, pred_labels):
+        """
+        結果をファイルに出力する
+        :param file_name: 出力ファイル名
+        :param sentence: 文章
+        :param corr_label: 正解ラベル
+        :param pred_labels: 予測確率
+        :return: なし
+        """
         # 素性がBoWなので、予測ラベルは1文につき1つだけ
         with open(file_name, 'a') as f:
             f.write(str(corr_label) + '\t' + str(pred_labels[0]) + '\t' + sentence + '\n')

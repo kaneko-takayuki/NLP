@@ -47,9 +47,18 @@ class EBOWFFNN(DLBases):
         return inputs, labels
 
     def output(self, file_name, sentence, corr_label, pred_labels):
+        """
+        結果をファイルに出力する
+        :param file_name: 出力ファイル
+        :param sentence: 文章
+        :param corr_label: 正解ラベル
+        :param pred_labels: 予測ラベル
+        :return: なし
+        """
         # 素性がBoWなので、予測ラベルは1文につき1つだけ
         pred_label = [str(label) for label in pred_labels.data[0]]
 
+        # 出力
         with open(file_name, 'a') as f:
             f.write(str(corr_label) + '\t' + '\t'.join(str(pred_label)) + '\t' + sentence + '\n')
 

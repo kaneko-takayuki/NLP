@@ -27,6 +27,11 @@ class FFNN(chainer.Chain):
         return F.softmax_cross_entropy(self.fwd(x), y)
 
     def fwd(self, x):
+        """
+        フォワード処理
+        :param x: 入力ベクトル
+        :return: フォワード処理結果
+        """
         h1 = F.dropout(F.relu(self.l1(x)))
         h2 = F.dropout(F.relu(self.l2(h1)))
         return self.l3(h2)

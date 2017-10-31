@@ -39,6 +39,7 @@ class DLBases(MLBases):
         # ランダム配列作成
         perm = np.random.permutation(self.num_train_data())
 
+        # batchsize個ずつデータを入れて学習させていく
         for i in six.moves.range(0, self.num_train_data() - self.batchsize, self.batchsize):
             # 実際に学習させるデータとラベル
             train_inputs = []
@@ -69,7 +70,7 @@ class DLBases(MLBases):
         :param file_name: 出力ファイル名
         :return: なし
         """
-
+        # 1つずつデータを取り出し、テストを行う
         for i in six.moves.range(self.num_test_data()):
             # テストを行うデータ
             i_input, i_label = self.convert(self.test_sentences[i], self.train_labels[i])
@@ -89,6 +90,7 @@ class DLBases(MLBases):
         :param file_name: セーブファイル名
         :return: なし
         """
+        # CPUモードで保存
         self.model.to_cpu()
         serializers.save_npz(file_name, self.model)
 
@@ -104,10 +106,8 @@ class DLBases(MLBases):
         :param file_name: ロードファイル名
         :return: なし
         """
-
-        # モデルの設定を行っている時だけ動作させる
-        if self.model:
-            serializers.load_npz(file_name, self.model)
+        # モデルをロードする
+        serializers.load_npz(file_name, self.model)
 
         # GPU設定
         if self.gpu >= 0:

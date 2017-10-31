@@ -61,6 +61,7 @@ class EW2VSigmoid5(MLBases):
         # ランダム配列作成
         perm = np.random.permutation(self.num_train_data())
 
+        # batchsize個ずつデータを入れて学習させていく
         for i in six.moves.range(0, self.num_train_data() - self.batchsize, self.batchsize):
             # 実際に学習させるデータとラベル
             train_inputs = []
@@ -80,23 +81,27 @@ class EW2VSigmoid5(MLBases):
                 for v in train_inputs:
                     print(len(v))
 
-
             # 学習処理
             train_inputs = chainer.Variable(self.xp.asarray(train_inputs))
             with chainer.using_config('train', True):
                 self.model.cleargrads()
+
+                # ラベルが1以上かどうかの学習
                 variable_train_labels = chainer.Variable(self.xp.asarray(threshold(train_labels, 0)))
                 loss1 = self.model.loss1(train_inputs, variable_train_labels)
                 loss1.backward()
 
+                # ラベルが2以上かどうかの学習
                 variable_train_labels = chainer.Variable(self.xp.asarray(threshold(train_labels, 1)))
                 loss2 = self.model.loss2(train_inputs, variable_train_labels)
                 loss2.backward()
 
+                # ラベルが3以上かどうかの学習
                 variable_train_labels = chainer.Variable(self.xp.asarray(threshold(train_labels, 2)))
                 loss3 = self.model.loss3(train_inputs, variable_train_labels)
                 loss3.backward()
 
+                # ラベルが4以上かどうかの学習
                 variable_train_labels = chainer.Variable(self.xp.asarray(threshold(train_labels, 3)))
                 loss4 = self.model.loss4(train_inputs, variable_train_labels)
                 loss4.backward()
@@ -108,6 +113,7 @@ class EW2VSigmoid5(MLBases):
         :param file_name: 出力ファイル名
         :return: なし
         """
+        # 1つずつテストデータを取り出し、テストを行う
         for i in six.moves.range(self.num_test_data()):
             # テストを行うデータ
             i_input, i_label = self.convert(self.test_sentences[i], self.train_labels[i])
@@ -122,13 +128,13 @@ class EW2VSigmoid5(MLBases):
                 pred_labels4 = self.model.fwd4(i_input)
 
             # 出力
-            self.output(file_name,
-                        self.test_sentences[i],
-                        self.test_labels[i],
-                        pred_labels1,
-                        pred_labels2,
-                        pred_labels3,
-                        pred_labels4)
+            self.output(file_name=file_name,
+                        sentence=self.test_sentences[i],
+                        corr_label=self.test_labels[i],
+                        pred_labels1=pred_labels1,
+                        pred_labels2=pred_labels2,
+                        pred_labels3=pred_labels3,
+                        pred_labels4=pred_labels4)
 
     def convert(self, sentence, label):
         """
@@ -146,16 +152,30 @@ class EW2VSigmoid5(MLBases):
         return inputs, labels
 
     def output(self, file_name, sentence, corr_label, pred_labels1, pred_labels2, pred_labels3, pred_labels4):
+        """
+        テストを行なった結果をファイルに書き出す
+        :param file_name: 出力ファイル名
+        :param sentence: 文章
+        :param corr_label: 正解ラベル
+        :param pred_labels1: ラベルが1以上の予測確率
+        :param pred_labels2: ラベルが2以上の予測確率
+        :param pred_labels3: ラベルが3以上の予測確率
+        :param pred_labels4: ラベルが4以上の予測確率
+        :return: なし
+        """
+        # フレーズリストを出す
         phrases = spliter.phrases(sentence, self.window_size)
+
+        # 出力
         with open(file_name, 'a') as f:
             f.write(str(corr_label) + '\t' + sentence + '\n')
 
             # 各フレーズに関する出力をまとめる
             for i in range(len(phrases)):
-                pred_label1 = [str(label) for label in pred_labels1.data[i]]
-                pred_label2 = [str(label) for label in pred_labels2.data[i]]
-                pred_label3 = [str(label) for label in pred_labels3.data[i]]
-                pred_label4 = [str(label) for label in pred_labels4.data[i]]
+                pred_label1 = [str(label_pred) for label_pred in pred_labels1.data[i]]
+                pred_label2 = [str(label_pred) for label_pred in pred_labels2.data[i]]
+                pred_label3 = [str(label_pred) for label_pred in pred_labels3.data[i]]
+                pred_label4 = [str(label_pred) for label_pred in pred_labels4.data[i]]
                 f.write('\t'.join(pred_label1) + '\t' +
                         '\t'.join(pred_label2) + '\t' +
                         '\t'.join(pred_label3) + '\t' +
@@ -172,8 +192,24 @@ class EW2VSigmoid5(MLBases):
         :param file_name: セーブファイル名
         :return: なし
         """
+        # CPUモードで保存
         self.model.to_cpu()
         serializers.save_npz(file_name, self.model)
+
+        # GPU設定
+        if self.gpu >= 0:
+            chainer.cuda.get_device_from_id(self.gpu).use()
+            cuda.check_cuda_available()
+            self.model.to_gpu()
+
+    def load(self, file_name):
+        """
+        モデルを読み込む
+        :param file_name: モデルファイル名
+        :return: なし
+        """
+        # モデルのロード
+        serializers.load_npz(file_name, self.model)
 
         # GPU設定
         if self.gpu >= 0:

@@ -13,12 +13,13 @@ class SIGMOID5(chainer.Chain):
     def __init__(self, n_in, n_mid):
         super(SIGMOID5, self).__init__(
             l1=L.Linear(n_in, n_mid),
-            l2_1=L.Linear(n_mid, 1),
-            l2_2=L.Linear(n_mid, 1),
-            l2_3=L.Linear(n_mid, 1),
-            l2_4=L.Linear(n_mid, 1),
+            l2_1=L.Linear(n_mid, 1),  # ラベルが1以上かどうかを判別するノード
+            l2_2=L.Linear(n_mid, 1),  # ラベルが2以上かどうかを判別するノード
+            l2_3=L.Linear(n_mid, 1),  # ラベルが3以上かどうかを判別するノード
+            l2_4=L.Linear(n_mid, 1),  # ラベルが4以上かどうかを判別するノード
         )
 
+    # 損失関数4種類
     def loss1(self, x, y):
         return F.mean_squared_error(self.fwd1(x), y)
 
@@ -31,6 +32,7 @@ class SIGMOID5(chainer.Chain):
     def loss4(self, x, y):
         return F.mean_squared_error(self.fwd4(x), y)
 
+    # フォワード処理4種類
     def fwd1(self, x):
         h1 = F.dropout(F.relu(self.l1(x)))
         return F.sigmoid(self.l2_1(h1))

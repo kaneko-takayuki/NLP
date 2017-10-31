@@ -23,6 +23,7 @@ class EBOWSVM(MLBases):
         train_inputs = []
         train_labels = []
 
+        # batchsize個毎データを取り出し学習を行う
         for (sentence, label) in zip(self.train_sentences, self.train_labels):
             i_input, i_label = self.convert(sentence, label)
             train_inputs.extend(i_input)
@@ -41,7 +42,7 @@ class EBOWSVM(MLBases):
         :param file_name: 出力ファイル名
         :return: なし
         """
-
+        # 1つずつデータを取り出しテストを行う
         for (sentence, label) in zip(self.test_sentences, self.test_labels):
             # テストを行うデータ
             i_input, i_label = self.convert(sentence, label)
@@ -69,7 +70,18 @@ class EBOWSVM(MLBases):
         return inputs, labels
 
     def output(self, file_name, sentence, corr_label, pred_labels):
+        """
+        結果をファイルに出力する
+        :param file_name: 出力ファイル
+        :param sentence: 文章
+        :param corr_label: 正解ラベル
+        :param pred_labels: 予測確率
+        :return: なし
+        """
+        # フレーズリストを取得する
         phrases = spliter.phrases(sentence, self.window_size)
+
+        # 出力
         with open(file_name, 'a') as f:
             f.write(str(corr_label) + '\t' + sentence + '\n')
 

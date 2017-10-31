@@ -21,6 +21,7 @@ class EBOWSVM(MLBases):
         train_inputs = []
         train_labels = []
 
+        # batchsize個データを取り出し、学習させていく
         for (sentence, label) in zip(self.train_sentences, self.train_labels):
             i_input, i_label = self.convert(sentence, label)
             train_inputs.extend(i_input)
@@ -39,7 +40,7 @@ class EBOWSVM(MLBases):
         :param file_name: 出力ファイル名
         :return: なし
         """
-
+        # データを一つずつ取り出しテストする
         for (sentence, label) in zip(self.test_sentences, self.test_labels):
             # テストを行うデータ
             i_input, i_label = self.convert(sentence, label)
