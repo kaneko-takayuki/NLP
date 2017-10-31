@@ -42,6 +42,9 @@ def main(k_start, k_end, n_in, n_mid, batchsize, gpu, window_size, n_epoch, comp
         sys.stderr.write("補完関数の指定方法を見なおしてください\n")
         exit()
 
+    # 実験で使用するword2vecモデルを読み込む
+    w2v.load_w2v("w2v_model/GoogleNews-vectors-negative300.bin")
+
     # k_start〜k_endで5分割交差検定
     for i in range(k_start, k_end):
         print("-------------------")

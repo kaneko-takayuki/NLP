@@ -2,6 +2,5 @@ __pycache__/
 .idea/
 amazon_corpus/
 tsukuba_corpus/
-jconvertor/word2vec/model
-econvertor/word2vec/model
+w2v_model/
 *.sh
