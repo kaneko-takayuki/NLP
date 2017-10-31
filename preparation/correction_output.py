@@ -28,7 +28,7 @@ def main():
     for w in _window:
         for i in range(1, 6):
             for j in range(1, 31):
-                file_name = base_path + "amazon_corpus/Sigmoid_W2V/" + w + "/zero/out/cross_validation" + str(i) + \
+                file_name = base_path + "amazon_corpus/Sigmoid_W2V/" + w + "/random/out/cross_validation" + str(i) + \
                             "/epoch" + str(j) + ".tsv"
 
                 correct(file_name)

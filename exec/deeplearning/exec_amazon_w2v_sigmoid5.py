@@ -4,6 +4,8 @@ import os
 import sys
 import argparse
 
+from econvertor import word2vec
+from econvertor.word2vec import functions
 from ml.deeplearning.e_w2v_sigmoid5 import EW2VSigmoid5
 from amazon_corpus.functions import read_amazon_corpus
 import constants
@@ -14,7 +16,7 @@ def main(n_in, n_mid, batchsize, gpu, window_size, n_epoch):
     os.environ["PATH"] = "/usr/local/cuda-7.5/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
     # 実験ディレクトリ
-    experiment_dir = "amazon_corpus/Sigmoid_W2V/window" + str(window_size) + "/zero/"
+    experiment_dir = "amazon_corpus/Sigmoid_W2V/window" + str(window_size) + "/random/"
 
     # 5分割交差検定
     for i in range(1, 6):

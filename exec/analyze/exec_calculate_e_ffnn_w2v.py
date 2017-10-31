@@ -19,7 +19,7 @@ def calculate_accuracy(experiment_dir):
         input_files = glob.glob(k_experiment_dir + "epoch*")
         input_files = sorted(input_files, key=functools.cmp_to_key(str_compare))
         # 精度を計算
-        calc_accuracy.calc_accuracy_epochs(input_files, k_experiment_dir + "accuracy_file2.txt")
+        calc_accuracy.calc_accuracy_epochs(input_files, k_experiment_dir + "accuracy_file.txt")
 
 
 def str_compare(str1, str2):
@@ -46,17 +46,17 @@ def main():
     """
     使用モデル: {FFNN, SVM}
     ウィンドウサイズ: {3, 5, 7, 3+5, 3+7, 5+7, 3+5+7}
-    補完関数: {zero, random, exception}
+    補完関数: {random, random, exception}
     合議関数: {多数決, softmax}
     """
     ws_list = ["Window3", "Window5", "Window7", "Window9", "Window11", "Window13"]
     completion_list = ["random"]
-    summarize_list = ["majority", "softmax"]
+    summarize_list = ["majority"]
 
     for ws in ws_list:
         for completion in completion_list:
             for summarize in summarize_list:
-                experiment_dir = base_path + "tsukuba_corpus/ffnn_w2v/" + ws + \
+                experiment_dir = base_path + "amazon_corpus/FFNN_W2V/" + ws + \
                                  "/" + completion + "/" + "summarized_out/" + summarize + "/"
                 print("-------------------------")
                 print("モデル: ffnn")

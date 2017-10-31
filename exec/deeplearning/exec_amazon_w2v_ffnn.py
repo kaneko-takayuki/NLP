@@ -14,7 +14,7 @@ def main(n_in, n_mid, n_out, batchsize, gpu, window_size, n_epoch):
     os.environ["PATH"] = "/usr/local/cuda-7.5/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
     # 実験ディレクトリ
-    experiment_dir = "amazon_corpus/Test_FFNN_W2V/zero/"
+    experiment_dir = "amazon_corpus/Test_FFNN_W2V/random/"
 
     # 5分割交差検定
     for i in range(1, 6):

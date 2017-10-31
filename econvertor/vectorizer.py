@@ -18,7 +18,7 @@ def word_vector(word):
         if w2v.completion_func is None:
             sys.stderr.write("KeyError: 補完用のコールバック関数を指定してください。\n")
             exit()
-        return w2v.completion_func()
+        return w2v.completion_func(w2v.vector_size)
     except TypeError:
         # 引数に文字型以外が渡された
         sys.stderr.write("TypeError: 引数の型を見なおしてください。\n")
@@ -55,16 +55,19 @@ def sentence_vector(sentence, window_size=1):
         # 補完関数を用いて、window_sizeに合うようにベクトルを生成
         completion_vector = []
         words = spliter.words(sentence)
+
         # それぞれの単語についてベクトルを取得
         for word in words:
             completion_vector.extend(word_vector(word))
+
         # 補完関数が設定されていなかったら、エラー処理
         if w2v.completion_func is None:
             sys.stderr.write("KeyError: 補完用のコールバック関数を指定してください。\n")
             exit()
+
         # 補完を行う
         for _ in range(window_size - count):
-            completion_vector.extend(w2v.completion_func())
+            completion_vector.extend(w2v.completion_func(w2v.model.vector_size))
         # 補完済のベクトルをフレーズベクトルリストとする
         _sentence_vector.append(completion_vector)
     # 適切なフレーズリストが求められたので、ベクトル化する

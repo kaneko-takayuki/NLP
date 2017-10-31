@@ -46,12 +46,12 @@ def main():
     """
     使用モデル: {FFNN, SVM}
     ウィンドウサイズ: {3, 5, 7, 3+5, 3+7, 5+7, 3+5+7}
-    補完関数: {zero, random, exception}
+    補完関数: {random, random, exception}
     合議関数: {多数決, softmax}
     """
     ws_list = ["window3", "window5", "window7",
                "multi_window35", "multi_window37", "multi_window57", "multi_window357"]
-    completion_list = ["zero", "random", "exception"]
+    completion_list = ["random", "random", "exception"]
     summarize_list = ["majority", "softmax"]
 
     for ws in ws_list:

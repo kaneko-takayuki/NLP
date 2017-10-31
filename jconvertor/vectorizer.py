@@ -18,7 +18,7 @@ def word_vector(word):
         if w2v.completion_func is None:
             sys.stderr.write("KeyError: 補完用のコールバック関数を指定してください。\n")
             exit()
-        return w2v.completion_func()
+        return w2v.completion_func(w2v.vector_sizes)
     except TypeError:
         # 引数に文字型以外が渡された
         sys.stderr.write("TypeError: 引数の型を見なおしてください。\n")
@@ -63,7 +63,7 @@ def sentence_vector(sentence, window_size=1):
             exit()
         # 補完を行う
         for _ in range(window_size - count):
-            completion_vector.extend(w2v.completion_func())
+            completion_vector.extend(w2v.completion_func(w2v.vector_size))
         # 補完済のベクトルをフレーズベクトルリストとする
         _sentence_vector.append(completion_vector)
     else:
