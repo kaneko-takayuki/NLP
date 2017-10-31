@@ -149,10 +149,11 @@ def sigmoid5_consult_majority(sentence_result):
     # フレーズ毎に参照していく
     for window_result in sentence_result:
         for phrase_result in window_result:
-            max_phrase_label_pred = 0.0  # フレーズにおけるラベル確率の最大
-            phrase_label = 0  # 予測ラベル
+            max_phrase_label_pred = 0.0  # フレーズにおけるラベル確率の最大値
+            phrase_label = 0  # フレーズの予測ラベル
             for i in range(5):
                 if max_phrase_label_pred < phrase_result[i]:
+                    max_phrase_label_pred = phrase_result[i]
                     phrase_label = i
             label_n[phrase_label] += 1
 
@@ -162,5 +163,35 @@ def sigmoid5_consult_majority(sentence_result):
     for i in range(5):
         if max_sentence_label_n < label_n[i]:
             sentence_label = i
+
+    return sentence_label
+
+
+def sigmoid5_consult_softmax(sentence_result):
+    """
+    sigmoid5の出力について、softmaxによってまとめる
+    :param sentence_result: 文に対する出力の集合
+    :return: 予測極性
+    """
+    # 全てのフレーズを見て、そのうち最も確率の高いラベルを文の予測ラベルとする
+    max_sentence_label_pred = 0.0
+    sentence_label = 0
+
+    # フレーズ毎に参照していく
+    for window_result in sentence_result:
+        for phrase_result in window_result:
+            max_phrase_label_pred = 0.0  # フレーズにおけるラベル確率の最大値
+            phrase_label = 0  # フレーズの予測ラベル
+
+            # フレーズ内のラベル予測確率の最大値とそのラベルを求める
+            for i in range(5):
+                if max_phrase_label_pred < phrase_result[i]:
+                    max_phrase_label_pred = phrase_result[i]
+                    phrase_label = i
+
+            # 今参照しているフレーズと、これまでのフレーズについての結果と比較し、より確率の高いラベルを文の予測ラベルとする
+            if max_sentence_label_pred < max_phrase_label_pred:
+                max_sentence_label_pred = max_phrase_label_pred
+                sentence_label = phrase_label
 
     return sentence_label
