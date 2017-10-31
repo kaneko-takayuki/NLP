@@ -60,7 +60,7 @@ def calc_accuracy_cross_validation(input_files, output_file):
     pattern = r"cross_validation.*"
 
     for input_file in input_files:
-        accuracy = calc_accuracy_1time(input_file)
+        accuracy = calc_accuracy_1time(input_file=input_file)
         m = re.search(pattern, input_file)
         if m:
             with open(output_file, 'a') as o:

@@ -4,17 +4,42 @@ import os
 import sys
 import argparse
 
+from jconvertor import word2vec as w2v
+from jconvertor.word2vec import functions as w2v_func
 from ml.deeplearning.j_w2v_ffnn import JW2VFFNN
 from tsukuba_corpus.functions import read_tsukuba_corpus
 import constants
 
 
-def main(n_in, n_mid, n_out, batchsize, gpu, window_size, n_epoch):
+def main(n_in, n_mid, n_out, batchsize, gpu, window_size, n_epoch, completion):
+    """
+    つくばコーパスに対して、
+    FFNNモデルで、フレーズベクトルを素性として、学習・テストを行う
+    :param n_in: 入力次元数
+    :param n_mid: 中間次元数
+    :param n_out: 出力次元数
+    :param batchsize: バッチサイズ
+    :param gpu: GPUを利用するかどうか
+    :param window_size: フレーズを区切るウィンドウサイズ
+    :param n_epoch: エポック数
+    :param completion: 補完関数(random, zero)
+    :return: なし
+    """
+
     # cudaへのパス
     os.environ["PATH"] = "/usr/local/cuda-7.5/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
     # 実験ディレクトリ
     experiment_dir = "tsukuba_corpus/Test_FFNN_W2V/random/"
+
+    # 実験で使用する補完関数を設定
+    if completion == "zero":
+        w2v.set_completion_func(w2v_func.create_zero_vector)
+    elif completion == "random":
+        w2v.set_completion_func(w2v_func.create_random_vector)
+    else:
+        sys.stderr.write("補完関数の指定方法を見なおしてください\n")
+        exit()
 
     # 5分割交差検定
     for i in range(1, 6):
@@ -61,6 +86,7 @@ if __name__ == '__main__':
     parser.add_argument("--gpu", "-g", type=int, default=-1)
     parser.add_argument("--window_size", "-w", type=int, default=3)
     parser.add_argument("--n_epoch", "-e", type=int, default=20)
+    parser.add_argument("--completion", "-c", type=str, default="zero")
     args = parser.parse_args()
 
     main(n_in=args.n_in,
@@ -69,4 +95,5 @@ if __name__ == '__main__':
          batchsize=args.batchsize,
          gpu=args.gpu,
          window_size=args.window_size,
-         n_epoch=args.n_epoch)
+         n_epoch=args.n_epoch,
+         completion=args.completion)

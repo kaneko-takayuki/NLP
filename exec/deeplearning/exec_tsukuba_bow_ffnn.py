@@ -10,6 +10,18 @@ import constants
 
 
 def main(n_in, n_mid, n_out, batchsize, gpu, n_epoch):
+    """
+    Amazonコーパスに対して、
+    FFNNモデルで、Bag of Wordsを素性として、学習・テストを行う
+    :param n_in: 入力次元数
+    :param n_mid: 中間次元数
+    :param n_out: 出力次元数
+    :param batchsize: バッチサイズ
+    :param gpu: GPUを利用するかどうか
+    :param n_epoch: エポック数
+    :return: なし
+    """
+
     # cudaへのパス
     os.environ["PATH"] = "/usr/local/cuda-7.5/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 

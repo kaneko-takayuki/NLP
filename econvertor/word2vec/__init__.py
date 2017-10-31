@@ -3,7 +3,7 @@
 import os
 import sys
 from gensim.models.keyedvectors import KeyedVectors
-import functions
+from econvertor.word2vec import functions
 
 # word2vecのモデル読み取り
 sys.stdout.write("word2vecのモデルを読み取っています...")
