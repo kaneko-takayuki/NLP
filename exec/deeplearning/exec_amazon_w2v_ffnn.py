@@ -61,7 +61,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, n_out, batchsize, 
         # あらかじめ5分割しておいたデータセットを学習用とテスト用に振り分ける
         # 5/4が学習用、5/1がテスト用
         for i in range(1, 6):
-            _sentence, _label = read_amazon_corpus(constants.AMAZON_BOOKDATA_DIR + "dataset" + str(j) + ".tsv")
+            _sentence, _label = read_amazon_corpus(constants.AMAZON_BOOKDATA_DIR + "dataset" + str(i) + ".tsv")
             # 5分割したデータのうち、一つだけをテストデータに回し、それ以外を学習データとする
             if k != i:
                 train_sentences.extend(_sentence)
@@ -77,8 +77,8 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, n_out, batchsize, 
             net.set_train_data(train_sentences, train_labels)
             net.set_test_data(test_sentences, test_labels)
             net.train()
-            net.test(experiment_dir + "out/cross_validation" + str(i) + "/epoch" + str(epoch) + ".tsv")
-            net.save(experiment_dir + "model/cross_validation" + str(i) + "/epoch" + str(epoch) + "_model.npz")
+            net.test(experiment_dir + "out/cross_validation" + str(k) + "/epoch" + str(epoch) + ".tsv")
+            net.save(experiment_dir + "model/cross_validation" + str(k) + "/epoch" + str(epoch) + "_model.npz")
             print("完了")
 
 if __name__ == '__main__':

@@ -26,12 +26,24 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
     :param completion: 補完関数(zero, random)
     :return: なし
     """
+    print("-------------------------------------")
+    print("start_k: " + str(start_k))
+    print("end_k: " + str(end_k))
+    print("start_epoch: " + str(start_epoch))
+    print("end_epoch: " + str(end_epoch))
+    print("入力次元数: " + str(n_in))
+    print("中間次元数: " + str(n_mid))
+    print("バッチサイズ: " + str(batchsize))
+    print("GPU: " + str(gpu))
+    print("ウィンドウサイズ: " + str(window_size))
+    print("補完関数: " + completion)
+    print("-------------------------------------")
 
     # pycharmから動かすとcudaへのパスが通らないので、ここでパスを追加する
     os.environ["PATH"] = "/usr/local/cuda-7.5/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
     # 実験ディレクトリ
-    experiment_dir = "amazon_corpus/sigmoid_w2v/window" + str(window_size) + "/random/"
+    experiment_dir = "amazon_corpus/sigmoid_w2v/window" + str(window_size) + "/" + completion + "/"
 
     # 実験で使用する補完関数を設定
     if completion == "zero":
@@ -56,7 +68,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
 
         # 途中のエポックから処理を行う場合、その直前のモデルを読み込んでから学習・テストを行う
         if start_epoch != 1:
-            model_file = experiment_dir + "model/cross_validation" + str(i) + "/" \
+            model_file = experiment_dir + "model/cross_validation" + str(k) + "/" \
                          + "epoch" + str(start_epoch-1) + "_model.npz"
             net.load(model_file)
 
@@ -69,7 +81,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
         # あらかじめ5分割しておいたデータセットを学習用とテスト用に振り分ける
         # 5/4が学習用、5/1がテスト用
         for i in range(1, 6):
-            _sentence, _label = read_amazon_corpus(constants.AMAZON_BOOKDATA_DIR + "dataset" + str(i) + ".tsv")
+            _sentence, _label = read_amazon_corpus(constants.AMAZON_BOOKDATA_DIR + "dataset" + str(k) + ".tsv")
             if k != i:
                 train_sentences.extend(_sentence)
                 train_labels.extend(_label)
@@ -84,8 +96,8 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
             net.set_train_data(train_sentences, train_labels)
             net.set_test_data(test_sentences, test_labels)
             net.train()
-            net.test(experiment_dir + "out/cross_validation" + str(i) + "/epoch" + str(epoch) + ".tsv")
-            net.save(experiment_dir + "model/cross_validation" + str(i) + "/epoch" + str(epoch) + "_model.npz")
+            net.test(experiment_dir + "out/cross_validation" + str(k) + "/epoch" + str(epoch) + ".tsv")
+            net.save(experiment_dir + "model/cross_validation" + str(k) + "/epoch" + str(epoch) + "_model.npz")
             print("完了")
 
 if __name__ == '__main__':
