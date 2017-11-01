@@ -90,17 +90,17 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
 
 if __name__ == '__main__':
     # 引数パース
-    parser = argparse.ArgumentParser(description='FFNN_parameter')
-    parser.add_argument("--start_k", "-ks", type=int, default=1)
-    parser.add_argument("--end_k", "-ke", type=int, default=5)
-    parser.add_argument("--start_epoch", "-se", type=int, default=1)
-    parser.add_argument("--end_epoch", "-e", type=int, default=20)
-    parser.add_argument("--n_in", "-i", type=int, default=900)
-    parser.add_argument("--n_mid", "-m", type=int, default=1000)
-    parser.add_argument("--batchsize", "-b", type=int, default=30)
-    parser.add_argument("--gpu", "-g", type=int, default=-1)
-    parser.add_argument("--window_size", "-w", type=int, default=3)
-    parser.add_argument("--completion", "-c", type=str, default="random")
+    parser = argparse.ArgumentParser(description='Amazonコーパスについて、sigmoid5によって5値分類する')
+    parser.add_argument("--start_k", "-ks", type=int, default=1, help='5分割中、どの分割から始めるか')
+    parser.add_argument("--end_k", "-ke", type=int, default=5, help='5分割中、どの分割まで行うか')
+    parser.add_argument("--start_epoch", "-se", type=int, default=1, help='どのエポックから始めるか')
+    parser.add_argument("--end_epoch", "-e", type=int, default=20, help='どのエポックまで行うか')
+    parser.add_argument("--n_in", "-i", type=int, default=900, help='FFNNの入力次元数')
+    parser.add_argument("--n_mid", "-m", type=int, default=1000, help='FFNNの中間次元数')
+    parser.add_argument("--batchsize", "-b", type=int, default=30, help='学習時のバッチサイズ')
+    parser.add_argument("--gpu", "-g", type=int, default=-1, help='GPUを利用するか')
+    parser.add_argument("--window_size", "-w", type=int, default=3, help='フレーズとして切り取る単位')
+    parser.add_argument("--completion", "-c", type=str, default="random", help='補完方法')
     args = parser.parse_args()
 
     main(start_k=args.start_k,

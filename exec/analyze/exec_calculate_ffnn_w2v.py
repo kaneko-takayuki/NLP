@@ -27,8 +27,8 @@ def main(experiment_dir, n_epoch):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='FFNNの合議による2値分類の精度を計算する')
-    parser.add_argument("--experiment_dir", "-d")
-    parser.add_argument("--n_epoch", "-e")
+    parser.add_argument("--experiment_dir", "-d", type=str, help='合議結果が格納されているディレクトリ')
+    parser.add_argument("--n_epoch", "-e", type=int, default=50, help='どのエポックまでの結果をまとめるか')
     args = parser.parse_args()
 
     main(experiment_dir=args.experiment_dir, n_epoch=args.n_epoch)

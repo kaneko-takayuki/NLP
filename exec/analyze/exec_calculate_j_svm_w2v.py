@@ -27,7 +27,7 @@ def main(experiment_dir):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='SVMの合議による2値分類の精度を計算する')
-    parser.add_argument("--experiment_dir", "-d")
+    parser.add_argument("--experiment_dir", "-d", type=str, help='実験結果が格納されているディレクトリ')
     args = parser.parse_args()
 
     main(experiment_dir=args.experiment_dir)

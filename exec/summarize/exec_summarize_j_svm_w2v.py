@@ -40,11 +40,11 @@ def main(input_dirs, output_dir, consult, cross_k):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='summarize svm-out to japanese binary classification')
-    parser.add_argument("--input_dirs", "-i", nargs='*')
-    parser.add_argument("--output_dir", "-o")
-    parser.add_argument("--consult", "-c")
-    parser.add_argument("--cross_k", "-k")
+    parser = argparse.ArgumentParser(description='つくばコーパスについて、SVMによって出力した結果を合議する')
+    parser.add_argument("--input_dirs", "-i", nargs='*', help='エポック毎の結果が格納されているディレクトリ(複数指定可能)')
+    parser.add_argument("--output_dir", "-o", type=str, help='結果を出力するディレクトリ')
+    parser.add_argument("--consult", "-c", type=str, default='majority', help='合議方法')
+    parser.add_argument("--cross_k", "-k", type=int, default=5, help='どの分割までの結果をまとめるか')
     args = parser.parse_args()
 
     main(input_dirs=args.input_dirs, output_dir=args.output_dir, consult=args.consult, cross_k=args.cross_k)

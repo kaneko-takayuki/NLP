@@ -41,11 +41,11 @@ def main(input_dirs, output_dir, consult, n_epoch):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='summarize ffnn-out to japanese binary classification')
-    parser.add_argument("--input_dirs", "-i", nargs='*')
-    parser.add_argument("--output_dir", "-o")
-    parser.add_argument("--consult", "-c")
-    parser.add_argument("--n_epoch", "-e")
+    parser = argparse.ArgumentParser(description='つくばコーパスについて、FFNNによって出力した結果を合議する')
+    parser.add_argument("--input_dirs", "-i", nargs='*', help='エポック毎の結果が格納されているディレクトリ(複数指定可能)')
+    parser.add_argument("--output_dir", "-o", help='結果を出力するディレクトリ')
+    parser.add_argument("--consult", "-c", type=str, default='majority', help='合議方法')
+    parser.add_argument("--n_epoch", "-e", type=int, default=50, help='どのエポックまでの結果をまとめるか')
     args = parser.parse_args()
 
     main(input_dirs=args.input_dirs, output_dir=args.output_dir, consult=args.consult, n_epoch=args.n_epoch)
