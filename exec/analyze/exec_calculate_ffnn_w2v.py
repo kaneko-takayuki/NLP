@@ -19,7 +19,7 @@ def main(experiment_dir, n_epoch):
     print("-----------------------------------")
 
     # 計算するファイルリストを用意
-    input_files = [experiment_dir + "epoch" + str(i) + ".txt" for i in range(1, n_epoch+1)]
+    input_files = [experiment_dir + "epoch" + str(i) + ".tsv" for i in range(1, n_epoch+1)]
 
     # 精度を計算
     calc_accuracy.calc_accuracy_epochs(input_files, experiment_dir + "accuracy_file.txt")

@@ -152,12 +152,12 @@ def sigmoid5_consult_majority(sentence_result):
     # フレーズ毎に参照していく
     for window_result in sentence_result:
         for phrase_result in window_result:
-            max_phrase_label_pred = 0.0  # フレーズにおけるラベル確率の最大値
             phrase_label = 0  # フレーズの予測ラベル
-            for i in range(5):
-                if max_phrase_label_pred < phrase_result[i]:
-                    max_phrase_label_pred = phrase_result[i]
-                    phrase_label = i
+            for i in range(4):
+                if phrase_result[i] >= 0.5:  # 0.5の閾値を超えれば、次の出力を見に行く
+                    phrase_label = i+1
+                else:
+                    break  # 閾値を超えなければ、予測ラベルを確定
             label_n[phrase_label] += 1
 
     # 1〜5の予測ラベルの個数を比較し、文章の予測ラベルを返す
@@ -176,25 +176,27 @@ def sigmoid5_consult_softmax(sentence_result):
     :param sentence_result: 文に対する出力の集合
     :return: 予測極性
     """
-    # 全てのフレーズを見て、そのうち最も確率の高いラベルを文の予測ラベルとする
-    max_sentence_label_pred = 0.0
+    # 全てのフレーズを見て、そのうち最も乖離度の大きいラベルを文の予測ラベルとする
+    max_sentence_estrangement = 0.0
     sentence_label = 0
 
     # フレーズ毎に参照していく
     for window_result in sentence_result:
         for phrase_result in window_result:
-            max_phrase_label_pred = 0.0  # フレーズにおけるラベル確率の最大値
+            phrase_estrangement = 0.0  # フレーズにおける乖離度
             phrase_label = 0  # フレーズの予測ラベル
 
             # フレーズ内のラベル予測確率の最大値とそのラベルを求める
-            for i in range(5):
-                if max_phrase_label_pred < phrase_result[i]:
-                    max_phrase_label_pred = phrase_result[i]
-                    phrase_label = i
+            for i in range(4):
+                phrase_estrangement = abs(phrase_result[i] - 0.5)  # 出力と閾値の乖離具合を計算
+                if phrase_result[i] >= 0.5:  # 0.5の閾値を超えれば、次の出力を見に行く
+                    phrase_label = i+1
+                else:
+                    break  # 閾値を超えなければ、予測ラベルを確定
 
             # 今参照しているフレーズと、これまでのフレーズについての結果と比較し、より確率の高いラベルを文の予測ラベルとする
-            if max_sentence_label_pred < max_phrase_label_pred:
-                max_sentence_label_pred = max_phrase_label_pred
+            if max_sentence_estrangement < phrase_estrangement:
+                max_sentence_estrangement = phrase_estrangement
                 sentence_label = phrase_label
 
     return sentence_label

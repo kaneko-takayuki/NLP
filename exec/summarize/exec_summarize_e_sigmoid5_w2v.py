@@ -18,7 +18,7 @@ def main(input_dirs, output_dir, consult, n_epoch):
     """
     # パラメータの表示
     print("合議対象:")
-    print("\t- 英文\n\t- 5段階評価\t- sigmoid5")
+    print("\t- 英文\n\t- 5段階評価\n\t- sigmoid5")
     print("入力ディレクトリ:")
     for dir_name in input_dirs:
         print('\t- ' + dir_name)
@@ -37,7 +37,7 @@ def main(input_dirs, output_dir, consult, n_epoch):
     # エポック毎に合議を行う
     for e in range(1, n_epoch+1):
         input_files = [(dir_name + "epoch" + str(e) + ".tsv") for dir_name in input_dirs]
-        e_sigmoid5_w2v.summarize(input_files, output_dir + "epoch" + str(e) + "tsv")
+        e_sigmoid5_w2v.summarize(input_files, output_dir + "epoch" + str(e) + ".tsv")
 
 
 if __name__ == '__main__':
