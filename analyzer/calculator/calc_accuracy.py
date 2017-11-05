@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+import math
 
 
 def calc_accuracy_1time(input_file):
@@ -39,6 +40,46 @@ def calc_accuracy_epochs(input_files, output_file):
 
     for input_file in input_files:
         accuracy = calc_accuracy_1time(input_file)
+        m = re.search(pattern, input_file)
+        if m:
+            with open(output_file, 'a') as o:
+                o.write(m.group() + ':\t' + str(accuracy) + '\n')
+
+
+def calc_mean_square_error_1time(input_file):
+    """
+    2乗誤差を計算して、結果を返す
+    :param input_file: 結果ファイル
+    :return: 正答率
+    """
+    sum_mean_square_error = 0.0  # 合計2乗誤差
+    sentence_n = 0.0  # 全体の文章数
+
+    with open(input_file) as f:
+        for line in f:
+            sentence_n += 1.0
+            items = line.split('\t')  # [正解ラベル, 予測ラベル, 文章]
+            sum_mean_square_error += math.sqrt((float(items[0]) - float(items[1])) ** 2)
+
+    return sum_mean_square_error / sentence_n
+
+
+def calc_mean_square_error_epochs(input_files, output_file):
+    """
+    2乗誤差を計算し、ファイルに出力する
+    :param input_files: エポック毎の結果がまとめてあるファイルリスト
+    :param output_file: 出力ファイル
+    :return: なし
+    """
+    # 出力ファイルを初期化する
+    with open(output_file, 'w'):
+        pass
+
+    # ファイル名のみを取り出す正規表現
+    pattern = r"epoch.*"
+
+    for input_file in input_files:
+        accuracy = calc_mean_square_error_1time(input_file)
         m = re.search(pattern, input_file)
         if m:
             with open(output_file, 'a') as o:
