@@ -2,6 +2,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.font_manager import FontProperties
 
 
 def plot(left, input_file, label):
@@ -17,10 +18,10 @@ def plot(left, input_file, label):
         for line in f:
             items = line.split('\t')
             height.append(float(items[1]))
-    plt.plot(np.array(left), np.array(height), linewidth=1, label=label)
+    plt.plot(np.array(left), np.array(height), linewidth=2, label=label)
 
 
-def draw_graph(left, input_files, labels, xlabel, ylabel, title):
+def draw_graph(left, input_files, labels, xlabel, ylabel, title, min_ylim, max_ylim):
     """
     折れ線グラフを描画する
     :param left: 横軸の長さ
@@ -31,10 +32,13 @@ def draw_graph(left, input_files, labels, xlabel, ylabel, title):
     :param title: グラフのタイトル
     :return: なし
     """
+    fp = FontProperties(fname='/home/kaneko-takayuki/IPAfont00303/ipag.ttf')  # 全角フォントの指定
+
     for input_file, label in zip(input_files, labels):
         plot(left, input_file, label)
-    plt.title(title)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.legend()
+    plt.ylim([min_ylim, max_ylim])
+    plt.title(title, fontproperties=fp)
+    plt.xlabel(xlabel, fontproperties=fp)
+    plt.ylabel(ylabel, fontproperties=fp)
+    plt.legend(prop=fp)
     plt.show()
