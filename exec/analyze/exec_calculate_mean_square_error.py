@@ -22,7 +22,7 @@ def main(experiment_dir, n_epoch):
     input_files = [experiment_dir + "epoch" + str(i) + ".tsv" for i in range(1, n_epoch+1)]
 
     # 精度を計算
-    calc_accuracy.calc_accuracy_epochs(input_files, experiment_dir + "mean_square_error_file.txt")
+    calc_accuracy.calc_mean_square_error_epochs(input_files, experiment_dir + "mean_square_error_file.txt")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='平均2乗誤差を計算する')

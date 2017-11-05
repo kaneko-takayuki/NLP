@@ -91,7 +91,24 @@ def ffnn_consult_majority5(sentence_result):
 
 
 def ffnn_consult_softmax5(sentence_result):
-    pass
+    """
+    softmaxによってまとめる(5段階評価)
+    :param sentence_result: 文に対する出力の集合
+    :return: なし
+    """
+    max_sentence_predict = 0.0
+    sentence_predict_label = 0
+
+    # フレーズ毎に参照していく
+    for window_result in sentence_result:
+        for phrase_result in window_result:
+            phrase_predict_label, max_phrase_predict = judge_evaluation(phrase_result[0:5])
+            if max_sentence_predict < max_phrase_predict:
+                max_sentence_predict = max_phrase_predict
+                sentence_predict_label = phrase_predict_label
+
+    return sentence_predict_label
+
 
 def svm_consult_softmax(sentence_result):
     """

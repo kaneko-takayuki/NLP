@@ -36,8 +36,8 @@ def main(input_dirs, output_dir, consult, n_epoch):
 
     # エポック毎に合議を行う
     for e in range(1, n_epoch+1):
-        input_files = [(dir_name + "epoch" + str(e) + ".tsv") for dir_name in input_dirs]
-        e_ffnn_w2v.summarize(input_files, output_dir + "epoch" + str(e) + "tsv")
+        input_files = [(dir_name + "epoch" + str(e) + ".txt") for dir_name in input_dirs]
+        e_ffnn_w2v.summarize(input_files, output_dir + "epoch" + str(e) + ".tsv")
 
 
 if __name__ == '__main__':
