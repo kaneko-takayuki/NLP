@@ -98,7 +98,7 @@ def calc_accuracy_cross_validation(input_files, output_file):
         pass
 
     # ファイル名のみを取り出す正規表現
-    pattern = r"cross_validation.*"
+    pattern = r"cross_validation1.*"
 
     for input_file in input_files:
         accuracy = calc_accuracy_1time(input_file=input_file)

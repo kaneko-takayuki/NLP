@@ -35,8 +35,8 @@ def main(input_dirs, output_dir, consult, cross_k):
         summarizer.consult_func = cf.svm_consult_softmax
 
     # 合議を行う
-    input_files = [(dir_name + "cross_validation" + str(cross_k) + ".tsv") for dir_name in input_dirs]
-    j_svm_w2v.summarize(input_files, output_dir + "cross_validation" + str(cross_k) + "tsv")
+    input_files = [(dir_name + "cross_validation1" + str(cross_k) + ".tsv") for dir_name in input_dirs]
+    j_svm_w2v.summarize(input_files, output_dir + "cross_validation1" + str(cross_k) + "tsv")
 
 
 if __name__ == '__main__':

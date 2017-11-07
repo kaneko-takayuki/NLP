@@ -14,7 +14,6 @@ def main(experiment_dir, start_epoch, end_epoch):
     # パラメータの表示
     print("対象ディレクトリ:")
     print('\t- ' + experiment_dir)
-    print("-----------------------------------")
 
     sum_accuracy = 0.0
     with open(experiment_dir + "accuracy_file.txt") as f:
@@ -22,7 +21,15 @@ def main(experiment_dir, start_epoch, end_epoch):
             if start_epoch <= i < end_epoch:
                 sum_accuracy += float(line.split('\t')[1])
 
-    print(str(sum_accuracy / (end_epoch+1 - start_epoch)))
+    print("正答率: " + str(round(sum_accuracy / (end_epoch+1 - start_epoch) * 100, 1)))
+
+    sum_mean_square_error = 0.0
+    with open(experiment_dir + "mean_square_error_file.txt") as f:
+        for i, line in enumerate(f):
+            if start_epoch <= i < end_epoch:
+                sum_mean_square_error += float(line.split('\t')[1])
+
+    print("平均2乗誤差: " + str(round(sum_mean_square_error / (end_epoch+1 - start_epoch), 2)))
 
     print("-----------------------------------\n")
 

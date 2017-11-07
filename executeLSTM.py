@@ -62,8 +62,8 @@ def execute_lstm(n_in=900, n_units=1000, n_out=2, gpu=-1, n_epoch=10, batchsize=
             net.set_train_data(train_data)
             net.set_test_data(test_data)
             net.train(batchsize=batchsize)
-            net.test("tsukuba_corpus/LSTM_W2V/out/cross_validation" + str(k) + "/epoch" + str(epoch) + ".txt")
-            net.save("tsukuba_corpus/LSTM_W2V/model/cross_validation" + str(k) + "/epoch" + str(epoch) + "_model.npz")
+            net.test("tsukuba_corpus/LSTM_W2V/out/cross_validation1" + str(k) + "/epoch" + str(epoch) + ".txt")
+            net.save("tsukuba_corpus/LSTM_W2V/model/cross_validation1" + str(k) + "/epoch" + str(epoch) + "_model.npz")
             print("完了")
 
     net.send_mail("LSTM", "LSTMの実験が終わりました！")

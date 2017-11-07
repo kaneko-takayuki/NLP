@@ -19,7 +19,7 @@ def main(experiment_dir):
     print("-----------------------------------")
 
     # 計算するするファイルリストを用意
-    input_files = [experiment_dir + "cross_validation" + str(i) + ".txt" for i in range(1, 6)]
+    input_files = [experiment_dir + "cross_validation1" + str(i) + ".txt" for i in range(1, 6)]
 
     # 精度を計算
     calc_accuracy.calc_accuracy_cross_validation(input_files, experiment_dir + "accuracy_file.txt")
