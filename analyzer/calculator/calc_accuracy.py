@@ -4,31 +4,45 @@ import re
 import math
 
 
-def calc_accuracy_1time(input_file):
+def calc_accuracy_1time(input_file, n_label):
     """
     1回分の正答率を計算して、結果を返す
     :param input_file: 結果ファイル
-    :return: 正答率
+    :param n_label: 何値分類であるか
+    :return: [正答率, ラベル1に対する正答率, ...ラベルn_labelに対する正答率]
     """
-    correct_n = 0.0  # 正解数
-    wrong_n = 0.0  # 不正解数
+    label_correct_n = [0.0 for _ in range(n_label)]  # ラベル毎の正解数(最後に正答率を計算するのでfloat)
+    label_wrong_n = [0.0 for _ in range(n_label)]  # ラベル毎の不正解数(最後に正答率を計算するのでfloat)
 
     with open(input_file) as f:
         for line in f:
             items = line.split('\t')  # [正解ラベル, 予測ラベル, 文章]
             if items[0] == items[1]:
-                correct_n += 1
+                label_correct_n[int(items[0])] += 1.0
             else:
-                wrong_n += 1
+                label_wrong_n[int(items[0])] += 1.0
 
-    return correct_n / (correct_n + wrong_n)
+    accuracy = list()
+    # 全体の正答率を計算
+    accuracy.append(sum(label_correct_n) / (sum(label_correct_n) + sum(label_wrong_n)))
+
+    # 各ラベルに対する正答率を計算
+    for i in range(n_label):
+        # あるラベルに対して、データがなかった場合は、0とする
+        if (label_correct_n[i] + label_wrong_n[i]) == 0.0:
+            accuracy.append(0.0)
+            continue
+        accuracy.append(label_correct_n[i] / (label_correct_n[i] + label_wrong_n[i]))
+
+    return accuracy
 
 
-def calc_accuracy_epochs(input_files, output_file):
+def calc_accuracy_epochs(input_files, output_file, n_label):
     """
     正答率を計算し、ファイルに出力する
     :param input_files: エポック毎の結果がまとめてあるファイルリスト
     :param output_file: 出力ファイル
+    :param n_label: 何値分類であるか
     :return: なし
     """
     # 出力ファイルを初期化する
@@ -39,11 +53,13 @@ def calc_accuracy_epochs(input_files, output_file):
     pattern = r"epoch.*"
 
     for input_file in input_files:
-        accuracy = calc_accuracy_1time(input_file)
+        accuracy = calc_accuracy_1time(input_file, n_label)  # 正答率はfloatで返ってくる
+        accuracy = [str(data) for data in accuracy]  # str化
+
         m = re.search(pattern, input_file)
         if m:
             with open(output_file, 'a') as o:
-                o.write(m.group() + ':\t' + str(accuracy) + '\n')
+                o.write(m.group() + ':' + '\t'.join(accuracy) + '\n')
 
 
 def calc_mean_square_error_1time(input_file):
