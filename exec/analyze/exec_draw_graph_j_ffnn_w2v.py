@@ -14,7 +14,7 @@ def main(x, input_files, labels, xlabel, ylabel, title, min_ylim, max_ylim):
     left = [i for i in range(1, x+1)]
 
     # グラフを描画
-    drawer.draw_graph(left, input_files, labels, xlabel, ylabel, title, min_ylim, max_ylim)
+    drawer.draw_graph_files(left, input_files, labels, xlabel, ylabel, title, min_ylim, max_ylim)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='折れ線グラフを描画する')

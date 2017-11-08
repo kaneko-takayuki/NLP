@@ -12,7 +12,7 @@ from chainer import cuda
 from ml.base import MLBases
 
 
-class DLBases(MLBases):
+class LSTMBases(MLBases):
     def __init__(self, batchsize, gpu=-1):
         MLBases.__init__(self)
 
@@ -58,8 +58,20 @@ class DLBases(MLBases):
             # 学習処理
             train_inputs = chainer.Variable(self.xp.asarray(train_inputs))
             train_labels = chainer.Variable(self.xp.asarray(train_labels))
+            self.model.cleargrads()  # 勾配の初期化
+            sum_loss = np.zeros((), dtype=np.float32)  # 損失の合計
+            for train_input, train_label in zip(train_inputs, train_labels):
+                self.model.reset_state()  # モデル内記憶変数を消去
+
+                for j, v in enumerate(len(train_input)):
+                    if j == len(train_input)-1:
+                        pass
+                    else:
+                        with chainer.using_config('train', False):
+                            v = chainer.Variable(self.xp.asarray(v))
+
+
             with chainer.using_config('train', True):
-                self.model.cleargrads()
                 loss = self.model(train_inputs, train_labels)
                 loss.backward()
                 self.optimizer.update()

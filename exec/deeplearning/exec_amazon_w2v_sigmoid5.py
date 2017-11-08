@@ -68,7 +68,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
 
         # 途中のエポックから処理を行う場合、その直前のモデルを読み込んでから学習・テストを行う
         if start_epoch != 1:
-            model_file = experiment_dir + "model/cross_validation1" + str(k) + "/" \
+            model_file = experiment_dir + "model/cross_validation" + str(k) + "/" \
                          + "epoch" + str(start_epoch-1) + "_model.npz"
             net.load(model_file)
 
@@ -81,7 +81,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
         # あらかじめ5分割しておいたデータセットを学習用とテスト用に振り分ける
         # 5/4が学習用、5/1がテスト用
         for i in range(1, 6):
-            _sentence, _label = read_amazon_corpus(constants.AMAZON_BOOKDATA_DIR + "dataset" + str(k) + ".tsv")
+            _sentence, _label = read_amazon_corpus(constants.AMAZON_BOOKDATA_DIR + "dataset" + str(i) + ".tsv")
             if k != i:
                 train_sentences.extend(_sentence)
                 train_labels.extend(_label)
@@ -96,8 +96,8 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
             net.set_train_data(train_sentences, train_labels)
             net.set_test_data(test_sentences, test_labels)
             net.train()
-            net.test(experiment_dir + "out/cross_validation1" + str(k) + "/epoch" + str(epoch) + ".tsv")
-            net.save(experiment_dir + "model/cross_validation1" + str(k) + "/epoch" + str(epoch) + "_model.npz")
+            net.test(experiment_dir + "out/cross_validation" + str(k) + "/epoch" + str(epoch) + ".tsv")
+            net.save(experiment_dir + "model/cross_validation" + str(k) + "/epoch" + str(epoch) + "_model.npz")
             print("完了")
 
 if __name__ == '__main__':
