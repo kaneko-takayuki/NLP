@@ -182,6 +182,7 @@ def sigmoid5_consult_majority(sentence_result):
     sentence_label = 0
     for i in range(5):
         if max_sentence_label_n < label_n[i]:
+            max_sentence_label_n = label_n[i]
             sentence_label = i
 
     return sentence_label
