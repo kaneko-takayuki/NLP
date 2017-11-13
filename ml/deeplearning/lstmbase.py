@@ -41,6 +41,7 @@ class LSTMBases(MLBases):
 
         # batchsize個ずつデータを入れて学習させていく
         for i in six.moves.range(0, self.num_train_data() - self.batchsize, self.batchsize):
+            sum_loss = 0  # 蓄積誤差
             # 実際に学習させるデータとラベル
             train_inputs = []
             train_labels = []
@@ -66,12 +67,13 @@ class LSTMBases(MLBases):
                     # 最後の出力に対してのみ誤差を計算し、逆伝播
                     if j == word_len - 1:
                         with chainer.using_config('train', True):
-                            loss = self.model(x, t)
-                            loss.backward()
-                            self.optimizer.update()
+                            sum_loss += self.model(x, t)
                     else:
                         with chainer.using_config('train', False):
                             self.model.fwd(x)
+            # 蓄積した誤差を逆伝播
+            sum_loss.backward()
+            self.optimizer.update()
 
     def test(self, file_name):
         """

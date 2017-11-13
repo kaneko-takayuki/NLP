@@ -6,3 +6,4 @@ amazon_corpus/
 tsukuba_corpus/
 w2v_model/
 *.sh
+log.txt
