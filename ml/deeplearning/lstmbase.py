@@ -12,7 +12,7 @@ from chainer import cuda
 from ml.base import MLBases
 
 
-class DLBases(MLBases):
+class LSTMBases(MLBases):
     def __init__(self, batchsize, gpu=-1):
         MLBases.__init__(self)
 
@@ -41,6 +41,7 @@ class DLBases(MLBases):
 
         # batchsize個ずつデータを入れて学習させていく
         for i in six.moves.range(0, self.num_train_data() - self.batchsize, self.batchsize):
+            sum_loss = 0  # 蓄積誤差
             # 実際に学習させるデータとラベル
             train_inputs = []
             train_labels = []
@@ -48,21 +49,31 @@ class DLBases(MLBases):
             # ランダムにbatchsize個のデータを取り出し、convertで設定した方法で学習データを作り出す
             for j in six.moves.range(i, i + self.batchsize):
                 j_input, j_label = self.convert(self.train_sentences[perm[j]], self.train_labels[perm[j]])
-                train_inputs.extend(j_input)
-                train_labels.extend(j_label)
-
-            # リストからnumpy化
-            train_inputs = np.asarray(train_inputs).astype(np.float32)
-            train_labels = np.asarray(train_labels).astype(np.int32)
+                train_inputs.append(j_input)
+                train_labels.append(j_label)
 
             # 学習処理
-            train_inputs = chainer.Variable(self.xp.asarray(train_inputs))
-            train_labels = chainer.Variable(self.xp.asarray(train_labels))
-            with chainer.using_config('train', True):
-                self.model.cleargrads()
-                loss = self.model(train_inputs, train_labels)
-                loss.backward()
-                self.optimizer.update()
+            self.model.cleargrads()  # 勾配の初期化
+            self.model.reset_state()  # 内部状態の初期化
+
+            # 学習データについて順番に見ていく
+            for train_input, train_label in zip(train_inputs, train_labels):
+                word_len = len(train_input)
+                # j: 何番目の単語について見る
+                for j in range(word_len):
+                    x = chainer.Variable(self.xp.asarray([train_input[j]]).astype(np.float32))
+                    t = chainer.Variable(self.xp.asarray(train_label).astype(np.int32))
+
+                    # 最後の出力に対してのみ誤差を計算し、逆伝播
+                    if j == word_len - 1:
+                        with chainer.using_config('train', True):
+                            sum_loss += self.model(x, t)
+                    else:
+                        with chainer.using_config('train', False):
+                            self.model.fwd(x)
+            # 蓄積した誤差を逆伝播
+            sum_loss.backward()
+            self.optimizer.update()
 
     def test(self, file_name):
         """

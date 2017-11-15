@@ -41,7 +41,7 @@ def phrase_vector(phrase):
 def sentence_vector(sentence, window_size=1):
     """
     文章をベクトル化する
-    :param sentence: 日本語文章 <class: 'str'>
+    :param sentence: 英語文章 <class: 'str'>
     :param window_size: 切り取るウィンドウサイズ <class: 'int'> 
     :return: 文章から得られるフレーズベクトルリスト <class: 'list'>
     """

@@ -16,20 +16,36 @@ def main(experiment_dir, start_epoch, end_epoch):
     print('\t- ' + experiment_dir)
 
     sum_accuracy = 0.0
+    labeln_accuracy = [0.0 for _ in range(5)]
     with open(experiment_dir + "accuracy_file.txt") as f:
         for i, line in enumerate(f):
             if start_epoch <= i < end_epoch:
                 sum_accuracy += float(line.split('\t')[1])
+                for j in range(5):
+                    try:
+                        labeln_accuracy[j] += float(line.split('\t')[j+2])
+                    except ValueError:
+                        continue
 
     print("正答率: " + str(round(sum_accuracy / (end_epoch+1 - start_epoch) * 100, 1)))
+    for i in range(5):
+        print("label" + str(i) + ": " + str(round(labeln_accuracy[i] / (end_epoch+1 - start_epoch) * 100, 1)))
 
     sum_mean_square_error = 0.0
+    labeln_mean_square_error = [0.0 for _ in range(5)]
     with open(experiment_dir + "mean_square_error_file.txt") as f:
         for i, line in enumerate(f):
             if start_epoch <= i < end_epoch:
                 sum_mean_square_error += float(line.split('\t')[1])
+                for j in range(5):
+                    try:
+                        labeln_mean_square_error[j] += float(line.split('\t')[j+2])
+                    except ValueError:
+                        continue
 
     print("平均2乗誤差: " + str(round(sum_mean_square_error / (end_epoch+1 - start_epoch), 2)))
+    for i in range(5):
+        print("label" + str(i) + ": " + str(round(labeln_mean_square_error[i] / (end_epoch+1 - start_epoch) * 100, 1)))
 
     print("-----------------------------------\n")
 

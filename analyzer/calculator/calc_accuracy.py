@@ -59,7 +59,7 @@ def calc_accuracy_epochs(input_files, output_file, n_label):
         m = re.search(pattern, input_file)
         if m:
             with open(output_file, 'a') as o:
-                o.write(m.group() + ':' + '\t'.join(accuracy) + '\n')
+                o.write(m.group() + ':\t' + '\t'.join(accuracy) + '\n')
 
 
 def calc_mean_square_error_1time(input_file, n_label):
@@ -113,7 +113,7 @@ def calc_mean_square_error_epochs(input_files, output_file, n_label):
         m = re.search(pattern, input_file)
         if m:
             with open(output_file, 'a') as o:
-                o.write(m.group() + ':' + '\t'.join(accuracy) + '\n')
+                o.write(m.group() + ':\t' + '\t'.join(accuracy) + '\n')
 
 
 def calc_accuracy_cross_validation(input_files, output_file, n_label):
