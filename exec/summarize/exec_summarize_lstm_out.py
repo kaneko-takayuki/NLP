@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import sys
 import argparse
+import add_path
 from amazon_corpus import functions
 from ml.svm.lstm_svm import LSTMSVM as lstm_svm
 
@@ -13,6 +15,8 @@ def main(dir_name, n_epoch):
     """
     # エポック毎にまとめる
     for e in range(1, n_epoch + 1):
+        sys.stdout.write("epoch" + str(e) + "...")
+        sys.stdout.flush()
         input_dir = dir_name + "out/cross_validation1/"
         output_file = dir_name + "summarized_out/cross_validation1/epoch" + str(e) + ".tsv"
         model = lstm_svm()
@@ -34,6 +38,8 @@ def main(dir_name, n_epoch):
 
         model.train()
         model.test(output_file)
+        
+        print("完了")
 
 
 if __name__ == '__main__':

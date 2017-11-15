@@ -54,7 +54,7 @@ class MakeSentenceVectorLSTM(LSTMBases):
         # 1つずつデータを取り出し、テストを行う
         for i in six.moves.range(self.num_test_data()):
             # テストを行うデータ
-            i_input, i_label = self.convert(self.test_sentences[i], self.train_labels[i])
+            i_input, i_label = self.convert(self.test_sentences[i], self.test_labels[i])
             word_len = len(i_input)
             self.model.cleargrads()  # 勾配の初期化
             self.model.reset_state()  # 内部状態の初期化
@@ -68,7 +68,7 @@ class MakeSentenceVectorLSTM(LSTMBases):
                     with chainer.using_config('train', False), open(file_name, 'a') as f:
                         compression_vector = self.model.get_compression_vector(x)
                         str_compression_vector = [str(v) for vec in compression_vector.data for v in vec]
-                        f.write(str(self.train_labels[i]) + '\t' + str(self.test_sentences[i]) + '\n')
+                        f.write(str(self.test_labels[i]) + '\t' + str(self.test_sentences[i]) + '\n')
                         f.write(' '.join(str_compression_vector) + '\n')
                 else:
                     with chainer.using_config('train', False):

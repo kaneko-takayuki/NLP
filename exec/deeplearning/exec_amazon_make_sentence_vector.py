@@ -4,7 +4,6 @@ import os
 import sys
 import argparse
 
-from econvertor import word2vec as w2v
 from econvertor.word2vec import functions as w2v_func
 from ml.deeplearning.make_sv_lstm import MakeSentenceVectorLSTM as make_lstm
 from amazon_corpus.functions import read_amazon_corpus

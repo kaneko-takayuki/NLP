@@ -59,3 +59,6 @@ class LSTMSVM(MLBases):
                 label = labels[i]
                 result = results[i]
                 f.write(str(label) + '\t' + str(result) + '\t' + str(sentence) + '\n')
+
+    def convert(self):
+        pass

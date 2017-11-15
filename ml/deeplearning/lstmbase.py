@@ -124,4 +124,4 @@ class LSTMBases(MLBases):
         if self.gpu >= 0:
             chainer.cuda.get_device_from_id(self.gpu).use()
             cuda.check_cuda_available()
-            self.model.model_to_gpu()
+            self.model.to_gpu()
