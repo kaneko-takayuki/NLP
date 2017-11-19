@@ -5,12 +5,12 @@ from sklearn import svm
 
 
 class LSTMSVM(MLBases):
-    def __init__(self):
+    def __init__(self, kernel):
         MLBases.__init__(self)
 
         self.train_vectors = []
         self.test_vectors = []
-        self.model = svm.SVC()
+        self.model = svm.SVC(kernel=kernel)
 
     def set_train_data(self, ts, tv, tl):
         """

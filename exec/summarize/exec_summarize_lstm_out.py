@@ -7,10 +7,11 @@ from amazon_corpus import functions
 from ml.svm.lstm_svm import LSTMSVM as lstm_svm
 
 
-def main(dir_name, n_epoch):
+def main(dir_name, n_epoch, kernel):
     """
     :param dir_name: 実験ディレクトリ
     :param n_epoch: どのエポックまでまとめるか
+    :param kernel: SVMのカーネル
     :return: なし
     """
     # エポック毎にまとめる
@@ -18,8 +19,8 @@ def main(dir_name, n_epoch):
         sys.stdout.write("epoch" + str(e) + "...")
         sys.stdout.flush()
         input_dir = dir_name + "out/cross_validation1/"
-        output_file = dir_name + "summarized_out/cross_validation1/epoch" + str(e) + ".tsv"
-        model = lstm_svm()
+        output_file = dir_name + "summarized_out/" + str(kernel) + "/cross_validation1/epoch" + str(e) + ".tsv"
+        model = lstm_svm(kernel)
 
         # 学習データの読み込み
         train_sentences = []
@@ -46,6 +47,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Amazonコーパスについて、sigmoid5によって出力した結果を合議する')
     parser.add_argument("--dir", "-d", help='実験ディレクトリ')
     parser.add_argument("--n_epoch", "-e", type=int, default=50, help='どのエポックまでの結果をまとめるか')
+    parser.add_argument("--kernel", "-k", type=str, default="rbf", help='SVMのカーネル')
     args = parser.parse_args()
 
-    main(args.dir, args.n_epoch)
+    main(args.dir, args.n_epoch, args.kernel)
