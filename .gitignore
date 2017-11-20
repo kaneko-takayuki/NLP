@@ -8,3 +8,5 @@ w2v_model/
 *.sh
 shape/
 log.txt
+preparation/wnjpn.db
+ja_eng_lib

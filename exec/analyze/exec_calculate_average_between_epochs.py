@@ -45,7 +45,7 @@ def main(experiment_dir, start_epoch, end_epoch):
 
     print("平均2乗誤差: " + str(round(sum_mean_square_error / (end_epoch+1 - start_epoch), 2)))
     for i in range(5):
-        print("label" + str(i) + ": " + str(round(labeln_mean_square_error[i] / (end_epoch+1 - start_epoch) * 100, 1)))
+        print("label" + str(i) + ": " + str(round(labeln_mean_square_error[i] / (end_epoch+1 - start_epoch), 1)))
 
     print("-----------------------------------\n")
 
