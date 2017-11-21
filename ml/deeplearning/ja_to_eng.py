@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+from numpy import dot
 import six
 import chainer
 from chainer import serializers
 from ml.deeplearning.model import ffnn2
 from chainer import optimizers
 from chainer import cuda
+from gensim import matutils
 
 from jconvertor import vectorizer as jvec
 from econvertor import vectorizer as evec
@@ -148,7 +150,7 @@ class JAtoENG:
         日本語単語ベクトルを英単語ベクトルに変換した後、
         どのような英単語とマッチするか求める
         :param j_word: 日単語
-        :return: マッチする英単語
+        :return: マッチする英単語と類似度リスト
         """
         # キーが無ければ、空リストを返す
         j_word_vec = jvec.word_vector(j_word)
@@ -162,6 +164,28 @@ class JAtoENG:
             converted_vector = np.asarray(list(output.data[0]), np.float32)
 
             # 出力したベクトルに対し、マッチする英単語を求める
-            match_result = ew2v.model.similar_by_vector(converted_vector, topn=10)
-            matched_words = [word for (word, cos) in match_result]
-            return matched_words
+            match_result = ew2v.model.most_similar(positive=[converted_vector], topn=10)
+            return match_result
+
+    def similarity(self, j_word, e_word):
+        """
+        単語j_wordの日本語単語ベクトルを英単語ベクトルに変換した後、
+        単語e_wordの単語ベクトルとのコサイン類似度を計算する
+        :param j_word: 日単語
+        :param e_word: 英単語
+        :return: j_wordを英ベクトル化したものと、e_wordのベクトルのコサイン類似度
+        """
+        # キーが無ければ、0を返す
+        j_word_vec = jvec.word_vector(j_word)
+        e_word_vec = evec.word_vector(e_word)
+        if (j_word_vec is None) or (e_word_vec is None):
+            return 0.0
+
+        # 与えられた日単語ベクトルに対する英単語ベクトルを求める
+        with chainer.using_config('train', False):
+            j_word_vec = self.xp.asarray([j_word_vec]).astype(np.float32)
+            output = self.model.fwd(j_word_vec)
+            converted_vector = np.asarray(list(output.data[0]), np.float32)
+
+            # 出力したベクトルに対し、マッチする英単語を求める
+            return dot(matutils.unitvec(converted_vector), matutils.unitvec(e_word_vec))
