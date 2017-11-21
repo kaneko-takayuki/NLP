@@ -10,6 +10,7 @@ from chainer import cuda
 
 from jconvertor import vectorizer as jvec
 from econvertor import vectorizer as evec
+from econvertor import word2vec as ew2v
 
 
 class JAtoENG:
@@ -126,3 +127,41 @@ class JAtoENG:
             chainer.cuda.get_device_from_id(self.gpu).use()
             cuda.check_cuda_available()
             self.model.to_gpu()
+
+    def load(self, file_name):
+        """
+        モデルを読み込む
+        :param file_name: ロードファイル名
+        :return: なし
+        """
+        # モデルをロードする
+        serializers.load_npz(file_name, self.model)
+
+        # GPU設定
+        if self.gpu >= 0:
+            chainer.cuda.get_device_from_id(self.gpu).use()
+            cuda.check_cuda_available()
+            self.model.to_gpu()
+
+    def most_similar(self, j_word):
+        """
+        日本語単語ベクトルを英単語ベクトルに変換した後、
+        どのような英単語とマッチするか求める
+        :param j_word: 日単語
+        :return: マッチする英単語
+        """
+        # キーが無ければ、空リストを返す
+        j_word_vec = jvec.word_vector(j_word)
+        if j_word_vec is None:
+            return []
+
+        # 与えられた日単語ベクトルに対する英単語ベクトルを求める
+        with chainer.using_config('train', False):
+            j_word_vec = self.xp.asarray([j_word_vec]).astype(np.float32)
+            output = self.model.fwd(j_word_vec)
+            converted_vector = np.asarray(list(output.data[0]), np.float32)
+
+            # 出力したベクトルに対し、マッチする英単語を求める
+            match_result = ew2v.model.similar_by_vector(converted_vector, topn=10)
+            matched_words = [word for (word, cos) in match_result]
+            return matched_words
