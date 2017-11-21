@@ -31,7 +31,7 @@ def main():
         sys.stdout.write("epoch" + str(epoch) + "...")
         sys.stdout.flush()
         net = make_sv_lstm.MakeSentenceVectorLSTM(n_in=300, n_mid=1000, n_out=5, batchsize=30, gpu=0)
-        net.load(experiment_dir + "model/cross_validation1/epoch" + str(epoch) + "_model.npz")
+        net.load(experiment_dir + "model_2layer/cross_validation1/epoch" + str(epoch) + "_model.npz")
 
         # テストデータについて
         _sentence, _label = read_amazon_corpus(constants.AMAZON_BOOKDATA_DIR + "dataset1.tsv")

@@ -78,7 +78,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, n_out, batchsize, 
             net.set_test_data(test_sentences, test_labels)
             net.train()
             net.test(experiment_dir + "out/cross_validation1" + str(k) + "/epoch" + str(epoch) + ".tsv")
-            net.save(experiment_dir + "model/cross_validation1" + str(k) + "/epoch" + str(epoch) + "_model.npz")
+            net.save(experiment_dir + "model_2layer/cross_validation1" + str(k) + "/epoch" + str(epoch) + "_model.npz")
             print("完了")
 
 if __name__ == '__main__':

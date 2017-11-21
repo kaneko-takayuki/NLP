@@ -68,7 +68,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, n_out, batchsize, 
 
         # 途中のエポックから処理を行う場合、その直前のモデルを読み込んでから学習・テストを行う
         if start_epoch != 1:
-            model_file = experiment_dir + "model/cross_validation" + str(k) + "/" \
+            model_file = experiment_dir + "model_2layer/cross_validation" + str(k) + "/" \
                          + "epoch" + str(start_epoch - 1) + "_model.npz"
             net.load(model_file)
 
@@ -98,7 +98,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, n_out, batchsize, 
             net.set_test_data(test_sentences, test_labels)
             net.train()
             net.output(experiment_dir + "out/cross_validation" + str(k) + "/epoch" + str(epoch) + ".tsv")
-            net.save(experiment_dir + "model/cross_validation" + str(k) + "/epoch" + str(epoch) + "_model.npz")
+            net.save(experiment_dir + "model_2layer/cross_validation" + str(k) + "/epoch" + str(epoch) + "_model.npz")
             print("完了")
 
 if __name__ == '__main__':

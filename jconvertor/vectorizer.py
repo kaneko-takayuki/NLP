@@ -18,7 +18,7 @@ def word_vector(word):
         if w2v.completion_func is None:
             sys.stderr.write("KeyError: 補完用のコールバック関数を指定してください。\n")
             exit()
-        return w2v.completion_func(w2v.vector_sizes)
+        return w2v.completion_func(w2v.vector_size)
     except TypeError:
         # 引数に文字型以外が渡された
         sys.stderr.write("TypeError: 引数の型を見なおしてください。\n")

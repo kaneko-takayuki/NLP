@@ -24,6 +24,15 @@ def create_random_vector(vector_size):
     return [random.uniform(-0.25, 0.25) for _ in range(vector_size)]
 
 
+def return_none(vector_size):
+    """
+    Noneを返す
+    :param vector_size: ベクトルサイズ
+    :return: None
+    """
+    return None
+
+
 def load_w2v(file_name):
     """
     word2vecのモデルを読み込む

@@ -78,7 +78,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, n_out, batchsize, 
             net.set_test_data(test_sentences, test_labels)
             net.train()
             net.test(experiment_dir + "out/cross_validation" + str(k) + "/epoch" + str(epoch) + ".tsv")
-            net.save(experiment_dir + "model/cross_validation" + str(k) + "/epoch" + str(epoch) + "_model.npz")
+            net.save(experiment_dir + "model_2layer/cross_validation" + str(k) + "/epoch" + str(epoch) + "_model.npz")
             print("完了")
 
 if __name__ == '__main__':
@@ -96,7 +96,6 @@ if __name__ == '__main__':
     parser.add_argument("--window_size", "-w", type=int, default=3, help='フレーズとして切り取る単位')
     parser.add_argument("--completion", "-c", type=str, default="random", help='補完方法')
     args = parser.parse_args()
-
     main(start_k=args.start_k,
          end_k=args.end_k,
          start_epoch=args.start_epoch,
