@@ -58,8 +58,13 @@ class JAtoENG:
         1エポック分の学習を行う
         :return: なし
         """
+        sum_loss = 0.0
+
         # ランダム配列作成
         perm = np.random.permutation(self.num_train_data())
+
+        # キーリスト
+        keys = list(self.train_words_dir.keys())
 
         # batchsize個ずつデータを入れて学習させていく
         for i in six.moves.range(0, self.num_train_data() - self.batchsize, self.batchsize):
@@ -68,11 +73,14 @@ class JAtoENG:
             train_outputs = []
 
             # ランダムにbatchsize個のデータを取り出し、convertで設定した方法で学習データを作り出す
-            keys = list(self.train_words_dir.keys())
             for j in six.moves.range(i, i + self.batchsize):
                 j_input, j_output = self.convert(keys[perm[j]], self.train_words_dir[keys[perm[j]]])
                 train_inputs.extend(j_input)
                 train_outputs.extend(j_output)
+
+            # もし、学習するデータがない場合、学習を行わずに次のミニバッチ処理へ
+            if len(train_inputs) == 0:
+                continue
 
             # リストからnumpy化
             train_inputs = np.asarray(train_inputs).astype(np.float32)
@@ -83,9 +91,36 @@ class JAtoENG:
             train_outputs = chainer.Variable(self.xp.asarray(train_outputs))
             with chainer.using_config('train', True):
                 self.model.cleargrads()
-                loss = self.model(train_inputs, train_outputs)
+                try:
+                    loss = self.model(train_inputs, train_outputs)
+                except:
+                    pass
+                sum_loss += loss.data
                 loss.backward()
                 self.optimizer.update()
+
+        print(sum_loss)
+
+
+        # train_inputs = []
+        # train_outputs = []
+        #
+        # j_input, j_output = self.convert('日本', 'japan')
+        #
+        # train_inputs.extend(j_input)
+        # train_outputs.extend(j_output)
+        #
+        # train_inputs = np.asarray(train_inputs).astype(np.float32)
+        # train_outputs = np.asarray(train_outputs).astype(np.float32)
+        #
+        # train_inputs = chainer.Variable(self.xp.asarray(train_inputs))
+        # train_outputs = chainer.Variable(self.xp.asarray(train_outputs))
+        #
+        # with chainer.using_config('train', True):
+        #     self.model.cleargrads()
+        #     loss = self.model(train_inputs, train_outputs)
+        #     loss.backward()
+        #     self.optimizer.update()
 
     def convert(self, j_word, e_words):
         """
