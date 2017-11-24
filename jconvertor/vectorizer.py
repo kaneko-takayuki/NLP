@@ -76,7 +76,7 @@ def sentence_vector(sentence, window_size=1):
     return _sentence_vector
 
 
-def jp_to_en_vector(j_word):
+def word_vector_to_eng(j_word):
     """
     日単語から英単語ベクトルを求める
     :param j_word: 日単語
@@ -86,6 +86,52 @@ def jp_to_en_vector(j_word):
         return [random.uniform(-0.25, 0.25) for _ in range(300)]
 
     return jconvertor.jword_to_evec[j_word]
+
+
+def phrase_vector_to_eng(phrase):
+    """
+    フレーズを英ベクトル化する
+    :param phrase: フレーズ(単語リスト) <class: 'list'>
+    :return: フレーズベクトル <class: 'list'>
+    """
+    vector = []
+    # それぞれの単語について、ベクトルを取得して連結する
+    for word in phrase:
+        vector.extend(word_vector_to_eng(word))
+    return vector
+
+
+def sentence_vector_to_eng(sentence, window_size=1):
+    """
+    日本語文章を英語ベクトル化する
+    :param sentence: 日本語文章 <class: 'str'>
+    :param window_size: 切り取るウィンドウサイズ <class: 'int'> 
+    :return: 文章から得られるフレーズベクトルリスト <class: 'list'>
+    """
+    _sentence_vector = []  # 文章ベクトル
+    count = spliter.word_count(sentence)  # 単語数
+    phrases = spliter.phrases(sentence, window_size)  # フレーズリスト
+
+    if len(phrases) == 0:
+        # window_sizeが単語数より大きくて、フレーズが得られなかった
+        # 補完関数を用いて、window_sizeに合うようにベクトルを生成
+        completion_vector = []
+        words = spliter.words(sentence)
+        # それぞれの単語についてベクトルを取得
+        for word in words:
+            completion_vector.extend(word_vector_to_eng(word))
+        # 補完を行う
+        for _ in range(window_size - count):
+            random_vector = [random.uniform(-0.25, 0.25) for _ in range(300)]
+            completion_vector.extend(random_vector)
+        # 補完済のベクトルをフレーズベクトルリストとする
+        _sentence_vector.append(completion_vector)
+    else:
+        # フレーズを一つベクトル化する
+        for phrase in phrases:
+            _sentence_vector.append(phrase_vector_to_eng(phrase))
+
+    return _sentence_vector
 
 
 if __name__ == '__main__':

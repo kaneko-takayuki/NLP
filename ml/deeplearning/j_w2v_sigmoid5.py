@@ -136,15 +136,15 @@ class EW2VSigmoid5(MLBases):
                         pred_labels3=pred_labels3,
                         pred_labels4=pred_labels4)
 
-    def convert(self, vectors, label):
+    def convert(self, sentence, label):
         """
         文章からベクトルを生成する
-        :param vectors: 単語ベクトルリスト
+        :param sentence: 文章
         :param label: ラベル
         :return: (入力ベクトルリスト, ラベルリスト)
         """
-        # 入力ベクトルリストを取得
-        inputs = vectorizer.sentence_vector(sentence, self.window_size)
+        # 入力ベクトルリストを求める
+        inputs = vectorizer.sentence_vector_to_eng(sentence, self.window_size)
 
         # vectorsと同じ要素数のラベルリストを生成
         labels = [[label] for _ in range(len(inputs))]
