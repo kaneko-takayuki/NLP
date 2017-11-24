@@ -3,6 +3,7 @@
 import numpy as np
 from numpy import dot
 import six
+import random
 import chainer
 from chainer import serializers
 from ml.deeplearning.model import ffnn2
@@ -179,6 +180,23 @@ class JAtoENG:
             chainer.cuda.get_device_from_id(self.gpu).use()
             cuda.check_cuda_available()
             self.model.to_gpu()
+
+    def foward(self, j_word):
+        """
+        日本語単語を受け取り、英単語ベクトルに変換する
+        :param j_word: 日単語
+        :return: 英単語ベクトル
+        """
+        # キーが無ければ、300次元のランダムベクトルを返す
+        j_word_vec = jvec.word_vector(j_word)
+        if j_word_vec is None:
+            return []
+
+        # 与えられた日単語ベクトルに対する英単語ベクトルを求めて返す
+        with chainer.using_config('train', False):
+            j_word_vec = self.xp.asarray([j_word_vec]).astype(np.float32)
+            output = self.model.fwd(j_word_vec)
+            return list(output.data[0])
 
     def most_similar(self, j_word):
         """

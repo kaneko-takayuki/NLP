@@ -7,7 +7,7 @@ from ja_eng_lib.functions import read_all
 
 
 def main():
-    corpus_data = functions.read_amazon_corpus("/home/kaneko-takayuki/NLP/amazon_corpus/data/jp/books/processed_test.review")
+    corpus_data = functions.read_amazon_corpus("/home/kaneko-takayuki/NLP/amazon_corpus/data/jp/books/all.tsv")
     word_set = set()
     well_known_words = read_all().keys()
 

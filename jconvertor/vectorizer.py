@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import random
+import jconvertor
 from jconvertor import spliter
 from jconvertor import word2vec as w2v
 
@@ -72,6 +74,18 @@ def sentence_vector(sentence, window_size=1):
             _sentence_vector.append(phrase_vector(phrase))
 
     return _sentence_vector
+
+
+def jp_to_en_vector(j_word):
+    """
+    日単語から英単語ベクトルを求める
+    :param j_word: 日単語
+    :return: 英単語ベクトル
+    """
+    if j_word not in jconvertor.j_word_keys:
+        return [random.uniform(-0.25, 0.25) for _ in range(300)]
+
+    return jconvertor.jword_to_evec[j_word]
 
 
 if __name__ == '__main__':

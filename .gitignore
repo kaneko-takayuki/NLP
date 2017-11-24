@@ -9,4 +9,5 @@ w2v_model/
 shape/
 log.txt
 preparation/wnjpn.db
-ja_eng_lib
+ja_eng_lib/
+constants.py

@@ -7,11 +7,10 @@ extensionの拡張子で
 """
 
 import numpy as np
-import Constant
 
 
-input_file = Constant.BASE_PATH + "amazon_corpus/data/music/all.tsv"
-output_dir = Constant.BASE_PATH + "amazon_corpus/data/music/"
+input_file = "/home/kaneko-takayuki/NLP/amazon_corpus/data/jp/books/all.tsv"
+output_dir = "/home/kaneko-takayuki/NLP/amazon_corpus/data/jp/books/"
 extension = ".tsv"
 n = 5
 
@@ -25,7 +24,7 @@ if __name__ == "__main__":
     # 5つのデータセットを作り出して出力
     tmp_data = np.array(tmp_data)
     perm = np.random.permutation(len(tmp_data))
-    mass = len(tmp_data) / 5
+    mass = int(len(tmp_data) / 5)
     for i in range(5):
         i_dataset = tmp_data[perm[i*mass:(i*mass)+mass]]
         with open(output_dir+"dataset"+str(i+1)+extension, "w") as o:
