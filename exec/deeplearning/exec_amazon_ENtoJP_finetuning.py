@@ -5,7 +5,7 @@ import sys
 import argparse
 
 from jconvertor.word2vec import functions as w2v_func
-from ml.deeplearning.e_w2v_sigmoid5 import EW2VSigmoid5
+from ml.deeplearning.j_w2v_sigmoid5 import JW2VSigmoid5
 from amazon_corpus.functions import read_amazon_corpus
 import constants
 
@@ -55,7 +55,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
         exit()
 
     # 実験で使用するword2vecモデルを読み込む
-    w2v_func.load_w2v("/home/kaneko-takayuki/NLP/w2v_model/nwcj_word_1_200_8_25_0_1e4_32_1_15.bin")
+    # w2v_func.load_w2v("/home/kaneko-takayuki/NLP/w2v_model/nwcj_word_1_200_8_25_0_1e4_32_1_15.bin")
 
     # k_start〜k_endで5分割交差検定
     # k: k回目の検定
@@ -64,7 +64,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
         print(str(k) + " / 5 分割目")
         print("-------------------")
         # ネットワークインスタンス作成
-        net = EW2VSigmoid5(n_in, n_mid, batchsize, gpu, window_size)
+        net = JW2VSigmoid5(n_in, n_mid, batchsize, gpu, window_size)
 
         # 学習データ, テストデータの準備
         train_sentences = []
@@ -75,7 +75,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
         # あらかじめ5分割しておいたデータセットを学習用とテスト用に振り分ける
         # 5/4が学習用、5/1がテスト用
         for i in range(1, 6):
-            _sentence, _label = read_amazon_corpus(constants.AMAZON_BOOKDATA_DIR + "dataset" + str(i) + ".tsv")
+            _sentence, _label = read_amazon_corpus(constants.AMAZON_JP_BOOKDATA_DIR + "dataset" + str(i) + ".tsv")
             if k != i:
                 train_sentences.extend(_sentence)
                 train_labels.extend(_label)
