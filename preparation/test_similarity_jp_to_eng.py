@@ -16,7 +16,7 @@ def main(n_in, n_mid, n_out, gpu, dir_name):
 
     # ネットワークインスタンス作成
     net = JAtoENG(n_in, n_mid, n_out, None, gpu)
-    net.load(dir_name + "epoch230_model.npz")
+    net.load(dir_name + "epoch200_model.npz")
 
     # 実験で使用する補完関数を設定
     jw2v_func.set_completion_func(jw2v_func.return_none)
@@ -26,17 +26,19 @@ def main(n_in, n_mid, n_out, gpu, dir_name):
     jw2v_func.load_w2v("/home/kaneko-takayuki/NLP/w2v_model/nwcj_word_1_200_8_25_0_1e4_32_1_15.bin")
     ew2v_func.load_w2v("/home/kaneko-takayuki/NLP/w2v_model/GoogleNews-vectors-negative300.bin")
 
-    num_words = sum(1 for _ in open("/home/kaneko-takayuki/NLP/ja_eng_lib/similarity_test/word_corpus.txt"))
+    num_words = sum(1 for _ in open("/home/kaneko-takayuki/NLP/ja_eng_lib/similarity_test/test_review_words_corpus.txt"))
     n = 1
     # 繰り返し入力を得て、マッチする英単語を求める
-    with open("/home/kaneko-takayuki/NLP/ja_eng_lib/similarity_test/word_corpus.txt", 'r') as i:
-        with open("/home/kaneko-takayuki/NLP/ja_eng_lib/similarity_test/result.txt", 'w') as o:
+    with open("/home/kaneko-takayuki/NLP/ja_eng_lib/similarity_test/test_review_words_corpus.txt", 'r') as i:
+        with open("/home/kaneko-takayuki/NLP/ja_eng_lib/similarity_test/method2/test_review_words_result.txt", 'w') as o:
             for j_word in i:
                 sys.stdout.write("\r" + str(n) + " / " + str(num_words))
                 sys.stdout.flush()
                 n += 1
                 j_word = j_word.replace('\n', '')
                 matched_eword = net.most_similar(j_word)
+                if len(matched_eword) == 0:
+                    continue  # KeyErrorでcosine類似度が取れなかった
                 o.write(j_word + ": " + str(matched_eword) + '\n')
 
 if __name__ == '__main__':
