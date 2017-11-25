@@ -116,7 +116,7 @@ class JW2VSigmoid5(MLBases):
         # 1つずつテストデータを取り出し、テストを行う
         for i in six.moves.range(self.num_test_data()):
             # テストを行うデータ
-            i_input, i_label = self.convert(self.train_sentences[i], self.train_labels[i])
+            i_input, i_label = self.convert(self.test_sentences[i], self.test_labels[i])
             i_input = np.asarray(i_input).astype(np.float32)
             i_input = chainer.Variable(self.xp.asarray(i_input))
 

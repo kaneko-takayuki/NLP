@@ -33,7 +33,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, n_out, batchsize, 
     os.environ["PATH"] = "/usr/local/cuda-7.5/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
     # 実験ディレクトリ
-    experiment_dir = "amazon_corpus/Test_FFNN_W2V/random/"
+    experiment_dir = "amazon_corpus/ffnn_w2v/window" + str(window_size) + "/" + completion + "/"
 
     # 実験で使用する補完関数を設定
     if completion == "zero":
@@ -52,6 +52,12 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, n_out, batchsize, 
         # ネットワークインスタンス作成
         net = EW2VFFNN(n_in, n_mid, n_out, batchsize, gpu, window_size)
 
+        # 途中のエポックから処理を行う場合、その直前のモデルを読み込んでから学習・テストを行う
+        if start_epoch != 1:
+            model_file = experiment_dir + "model/cross_validation" + str(k) + "/" \
+                         + "epoch" + str(start_epoch - 1) + "_model.npz"
+            net.load(model_file)
+
         # 学習データ, テストデータの準備
         train_sentences = []
         train_labels = []
@@ -61,7 +67,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, n_out, batchsize, 
         # あらかじめ5分割しておいたデータセットを学習用とテスト用に振り分ける
         # 5/4が学習用、5/1がテスト用
         for i in range(1, 6):
-            _sentence, _label = read_amazon_corpus(constants.AMAZON_BOOKDATA_DIR + "dataset" + str(i) + ".tsv")
+            _sentence, _label = read_amazon_corpus(constants.AMAZON_EN_BOOKDATA_DIR + "dataset" + str(i) + ".tsv")
             # 5分割したデータのうち、一つだけをテストデータに回し、それ以外を学習データとする
             if k != i:
                 train_sentences.extend(_sentence)
@@ -78,7 +84,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, n_out, batchsize, 
             net.set_test_data(test_sentences, test_labels)
             net.train()
             net.test(experiment_dir + "out/cross_validation" + str(k) + "/epoch" + str(epoch) + ".tsv")
-            net.save(experiment_dir + "model_2layer/cross_validation" + str(k) + "/epoch" + str(epoch) + "_model.npz")
+            net.save(experiment_dir + "model/cross_validation" + str(k) + "/epoch" + str(epoch) + "_model.npz")
             print("完了")
 
 if __name__ == '__main__':
