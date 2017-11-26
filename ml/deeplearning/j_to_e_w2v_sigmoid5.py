@@ -144,7 +144,7 @@ class JW2VSigmoid5(MLBases):
         :return: (入力ベクトルリスト, ラベルリスト)
         """
         # 入力ベクトルリストを求める
-        inputs = vectorizer.sentence_vector(sentence, self.window_size)
+        inputs = vectorizer.sentence_vector_to_eng(sentence, self.window_size)
 
         # vectorsと同じ要素数のラベルリストを生成
         labels = [[label] for _ in range(len(inputs))]
