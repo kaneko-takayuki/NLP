@@ -28,6 +28,20 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, n_out, batchsize, 
     :param completion: 補完関数(random, zero)
     :return: なし
     """
+    print("-------------------------------------")
+    print("exec_file: exec_amazon_w2v_ffnn.py")
+    print("start_k: " + str(start_k))
+    print("end_k: " + str(end_k))
+    print("start_epoch: " + str(start_epoch))
+    print("end_epoch: " + str(end_epoch))
+    print("入力次元数: " + str(n_in))
+    print("中間次元数: " + str(n_mid))
+    print("出力次元数: " + str(n_out))
+    print("バッチサイズ: " + str(batchsize))
+    print("GPU: " + str(gpu))
+    print("ウィンドウサイズ: " + str(window_size))
+    print("補完関数: " + completion)
+    print("-------------------------------------")
 
     # cudaへのパス
     os.environ["PATH"] = "/usr/local/cuda-7.5/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"

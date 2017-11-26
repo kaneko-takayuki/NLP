@@ -8,6 +8,7 @@ w2v_model/
 *.sh
 shape/
 log.txt
+nohup.out
 preparation/wnjpn.db
 ja_eng_lib/
 constants.py

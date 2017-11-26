@@ -27,6 +27,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, n_out, batchsize, 
     :return: なし
     """
     print("-------------------------------------")
+    print("exec_file: exec_amazon_make_sentence_vector.py")
     print("start_k: " + str(start_k))
     print("end_k: " + str(end_k))
     print("start_epoch: " + str(start_epoch))
