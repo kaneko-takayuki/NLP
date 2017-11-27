@@ -1,0 +1,3 @@
+[submodule "natto-py"]
+	path = natto-py
+	url = https://github.com/massongit/natto-py.git
