@@ -24,9 +24,9 @@ def threshold(labels, x):
     _labels = copy.deepcopy(labels)
     for i in range(len(_labels)):
         if _labels[i] <= x:
-            _labels[i] = 0.0
+            _labels[i] = 0
         else:
-            _labels[i] = 1.0
+            _labels[i] = 1
     return _labels
 
 
@@ -82,7 +82,7 @@ class JW2VSigmoid5(MLBases):
             # 学習データの型を学習用に変更
             train_inputs = np.asarray(train_inputs).astype(np.float32)
             variable_train_inputs = chainer.Variable(self.xp.asarray(train_inputs))
-            train_labels = np.asarray(train_labels).astype(np.float32)
+            train_labels = np.asarray(train_labels).astype(np.int32)
 
             # 学習処理
             with chainer.using_config('train', True):
@@ -159,7 +159,7 @@ class JW2VSigmoid5(MLBases):
         inputs = vectorizer.sentence_vector(sentence, self.window_size)
 
         # vectorsと同じ要素数のラベルリストを生成
-        labels = [[label] for _ in range(len(inputs))]
+        labels = [label for _ in range(len(inputs))]
 
         return inputs, labels
 
