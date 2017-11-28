@@ -61,6 +61,12 @@ class JW2VSigmoid5(MLBases):
         # ランダム配列作成
         perm = np.random.permutation(self.num_train_data())
 
+        # 誤差の総和
+        sum_loss1 = 0.0
+        sum_loss2 = 0.0
+        sum_loss3 = 0.0
+        sum_loss4 = 0.0
+
         # batchsize個ずつデータを入れて学習させていく
         for i in six.moves.range(0, self.num_train_data() - self.batchsize, self.batchsize):
             # 実際に学習させるデータとラベル
@@ -89,23 +95,29 @@ class JW2VSigmoid5(MLBases):
                 # ラベルが1以上かどうかの学習
                 variable_train_labels = chainer.Variable(self.xp.asarray(threshold(train_labels, 0)))
                 loss1 = self.model.loss1(train_inputs, variable_train_labels)
+                sum_loss1 += loss1.data
                 loss1.backward()
 
                 # ラベルが2以上かどうかの学習
                 variable_train_labels = chainer.Variable(self.xp.asarray(threshold(train_labels, 1)))
                 loss2 = self.model.loss2(train_inputs, variable_train_labels)
+                sum_loss2 += loss2.data
                 loss2.backward()
 
                 # ラベルが3以上かどうかの学習
                 variable_train_labels = chainer.Variable(self.xp.asarray(threshold(train_labels, 2)))
                 loss3 = self.model.loss3(train_inputs, variable_train_labels)
+                sum_loss3 += loss3.data
                 loss3.backward()
 
                 # ラベルが4以上かどうかの学習
                 variable_train_labels = chainer.Variable(self.xp.asarray(threshold(train_labels, 3)))
                 loss4 = self.model.loss4(train_inputs, variable_train_labels)
+                sum_loss4 += loss4.data
                 loss4.backward()
                 self.optimizer.update()
+
+        return sum_loss1, sum_loss2, sum_loss3, sum_loss4
 
     def test(self, file_name):
         """

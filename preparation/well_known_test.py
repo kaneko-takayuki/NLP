@@ -19,8 +19,8 @@ def main():
 
     # Amazonコーパスを読み取る
     data = functions.read_amazon_corpus("/home/kaneko-takayuki/NLP/amazon_corpus/data/jp/books/all.tsv")
-    for d in data:
-        words = spliter.words(d[1])
+    for sentence in data[0]:
+        words = spliter.words(sentence)
         for word in words:
             try:
                 _ = w2v.model[word]

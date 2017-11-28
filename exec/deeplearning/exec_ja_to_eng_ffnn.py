@@ -20,7 +20,7 @@ def main(start_epoch, end_epoch, n_in, n_mid, n_out, batchsize, gpu):
 
     # 途中のエポックから処理を行う場合、その直前のモデルを読み込んでから学習・テストを行う
     if start_epoch != 1:
-        model_file = "/home/kaneko-takayuki/NLP/ja_eng_lib/model_dropout_mse/epoch" + str(start_epoch) + "_model.npz"
+        model_file = "/home/kaneko-takayuki/NLP/ja_eng_lib/model_mse/epoch" + str(start_epoch) + "_model.npz"
         net.load(model_file)
 
     # 実験で使用する補完関数を設定
@@ -38,7 +38,7 @@ def main(start_epoch, end_epoch, n_in, n_mid, n_out, batchsize, gpu):
         sys.stdout.write("epoch" + str(epoch) + ": ")
         sys.stdout.flush()
         net.train()
-        net.save("/home/kaneko-takayuki/NLP/ja_eng_lib/model_dropout_mse/epoch" + str(epoch) + "_model.npz")
+        net.save("/home/kaneko-takayuki/NLP/ja_eng_lib/model_mse/epoch" + str(epoch) + "_model.npz")
 
 if __name__ == '__main__':
     # 引数パース

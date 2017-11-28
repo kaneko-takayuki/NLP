@@ -27,7 +27,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
     :return: なし
     """
     print("-------------------------------------")
-    print("exec_file: exec_j_amazon_w2v_sigmoid5.py")
+    print("exec_file: exec_ja_to_en_amazon_w2v_sigmoid5.py")
     print("start_k: " + str(start_k))
     print("end_k: " + str(end_k))
     print("start_epoch: " + str(start_epoch))

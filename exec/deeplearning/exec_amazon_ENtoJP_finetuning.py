@@ -27,6 +27,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
     :return: なし
     """
     print("-------------------------------------")
+    print("exec_file: exec_amazon_ENtoJP_finetuning")
     print("start_k: " + str(start_k))
     print("end_k: " + str(end_k))
     print("start_epoch: " + str(start_epoch))

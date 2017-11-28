@@ -27,7 +27,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
     :return: なし
     """
     print("-------------------------------------")
-    print("exec_file: exec_j_amazon_w2v_sigmoid5.py")
+    print("exec_file: exec_ja_amazon_w2v_sigmoid5.py")
     print("start_k: " + str(start_k))
     print("end_k: " + str(end_k))
     print("start_epoch: " + str(start_epoch))
@@ -92,14 +92,15 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
 
         # 繰り返し学習・テスト
         for epoch in range(start_epoch, end_epoch+1):
-            sys.stdout.write("epoch" + str(epoch) + "...")
+            sys.stdout.write("epoch" + str(epoch) + ": ")
             sys.stdout.flush()
             net.set_train_data(train_sentences, train_labels)
             net.set_test_data(test_sentences, test_labels)
-            net.train()
+            (loss1, loss2, loss3, loss4) = net.train()
+            sys.stdout.write(str(loss1) + ' ' + str(loss2) + ' ' + str(loss3) + ' ' + str(loss4))
             net.test(experiment_dir + "out/cross_validation" + str(k) + "/epoch" + str(epoch) + ".tsv")
             net.save(experiment_dir + "model/cross_validation" + str(k) + "/epoch" + str(epoch) + "_model.npz")
-            print("完了")
+            print("")
 
 if __name__ == '__main__':
     # 引数パース

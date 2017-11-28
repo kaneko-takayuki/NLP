@@ -11,7 +11,10 @@ def words(sentence):
     """
     # 受け取った文章を形態素解析
     # MeCabの仕様上、最後2つ分にEOSと空行が入るので、それは省く
-    parsed_s = mecab.tagger.parse(sentence).split('\n')[:-2]
+    parsed_s = mecab.tagger.parse(sentence)
+
+    parsed_s = parsed_s.split('\n')
+    parsed_s = parsed_s[:-2]
 
     # パース済のデータに対して、1番目は単語そのまま出てくる
     return [x.split('\t')[0] for x in parsed_s]

@@ -15,7 +15,7 @@ def main(n_in, n_mid, n_out, gpu, dir_name):
 
     # ネットワークインスタンス作成
     net = JAtoENG(n_in, n_mid, n_out, None, gpu)
-    net.load(dir_name + "epoch230_model.npz")
+    net.load(dir_name + "epoch200_model.npz")
 
     # 実験で使用する補完関数を設定
     jw2v_func.set_completion_func(jw2v_func.return_none)

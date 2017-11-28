@@ -13,10 +13,11 @@ class SIGMOID5(chainer.Chain):
     def __init__(self, n_in, n_mid):
         super(SIGMOID5, self).__init__(
             l1=L.Linear(n_in, n_mid),
-            l2_1=L.Linear(n_mid, 1),  # ラベルが1以上かどうかを判別するノード
-            l2_2=L.Linear(n_mid, 1),  # ラベルが2以上かどうかを判別するノード
-            l2_3=L.Linear(n_mid, 1),  # ラベルが3以上かどうかを判別するノード
-            l2_4=L.Linear(n_mid, 1),  # ラベルが4以上かどうかを判別するノード
+            l2=L.Linear(n_mid, n_mid),
+            l3_1=L.Linear(n_mid, 1),  # ラベルが1以上かどうかを判別するノード
+            l3_2=L.Linear(n_mid, 1),  # ラベルが2以上かどうかを判別するノード
+            l3_3=L.Linear(n_mid, 1),  # ラベルが3以上かどうかを判別するノード
+            l3_4=L.Linear(n_mid, 1),  # ラベルが4以上かどうかを判別するノード
         )
 
     # 損失関数4種類
@@ -35,16 +36,20 @@ class SIGMOID5(chainer.Chain):
     # フォワード処理4種類
     def fwd1(self, x):
         h1 = F.dropout(F.relu(self.l1(x)))
-        return F.sigmoid(self.l2_1(h1))
+        h2 = F.dropout(F.relu(self.l2(h1)))
+        return F.sigmoid(self.l3_1(h2))
 
     def fwd2(self, x):
         h1 = F.dropout(F.relu(self.l1(x)))
-        return F.sigmoid(self.l2_2(h1))
+        h2 = F.dropout(F.relu(self.l2(h1)))
+        return F.sigmoid(self.l3_2(h2))
 
     def fwd3(self, x):
         h1 = F.dropout(F.relu(self.l1(x)))
-        return F.sigmoid(self.l2_3(h1))
+        h2 = F.dropout(F.relu(self.l2(h1)))
+        return F.sigmoid(self.l3_3(h2))
 
     def fwd4(self, x):
         h1 = F.dropout(F.relu(self.l1(x)))
-        return F.sigmoid(self.l2_4(h1))
+        h2 = F.dropout(F.relu(self.l2(h1)))
+        return F.sigmoid(self.l3_4(h2))
