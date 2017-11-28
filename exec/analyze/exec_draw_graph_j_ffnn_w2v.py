@@ -2,7 +2,6 @@
 
 import os
 import argparse
-import add_path
 from analyzer.graph_drawer import drawer
 
 

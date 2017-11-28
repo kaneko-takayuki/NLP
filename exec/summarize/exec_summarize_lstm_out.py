@@ -2,7 +2,6 @@
 
 import sys
 import argparse
-import add_path
 from amazon_corpus import functions
 from ml.svm.lstm_svm import LSTMSVM as lstm_svm
 

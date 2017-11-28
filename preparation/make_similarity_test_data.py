@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import add_path
 from amazon_corpus import functions
 from jconvertor import spliter
 from ja_eng_lib.functions import read_all

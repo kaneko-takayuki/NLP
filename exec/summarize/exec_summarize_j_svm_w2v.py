@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import add_path
 from analyzer import summarizer
 from analyzer.summarizer import j_svm_w2v
 from analyzer.summarizer import consult_function as cf

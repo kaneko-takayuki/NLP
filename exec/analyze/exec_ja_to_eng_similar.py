@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
 import argparse
 
 from jconvertor.word2vec import functions as jw2v_func
 from econvertor.word2vec import functions as ew2v_func
-from ja_eng_lib.functions import read_all
 from ml.deeplearning.ja_to_eng import JAtoENG
 
 

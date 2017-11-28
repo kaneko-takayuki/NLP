@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import add_path
 from analyzer.calculator import calc_accuracy
 
 

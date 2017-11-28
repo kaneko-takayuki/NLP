@@ -5,7 +5,6 @@ amazon_corpusのラベルの個数をカウントするスクリプト
 """
 
 import os
-import add_path
 from econvertor import spliter
 
 
