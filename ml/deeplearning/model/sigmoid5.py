@@ -21,35 +21,33 @@ class SIGMOID5(chainer.Chain):
         )
 
     # 損失関数4種類
-    def loss1(self, x, y):
-        return F.mean_squared_error(self.fwd1(x), y)
+    # 第2層の出力値を受け取って、誤差を返す
+    def loss1(self, h2, y):
+        return F.softmax_cross_entropy(self.fwd1(h2), y)
 
-    def loss2(self, x, y):
-        return F.mean_squared_error(self.fwd2(x), y)
+    def loss2(self, h2, y):
+        return F.softmax_cross_entropy(self.fwd2(h2), y)
 
-    def loss3(self, x, y):
-        return F.mean_squared_error(self.fwd3(x), y)
+    def loss3(self, h2, y):
+        return F.softmax_cross_entropy(self.fwd3(h2), y)
 
-    def loss4(self, x, y):
-        return F.mean_squared_error(self.fwd4(x), y)
+    def loss4(self, h2, y):
+        return F.softmax_cross_entropy(self.fwd4(h2), y)
 
-    # フォワード処理4種類
-    def fwd1(self, x):
+    # 第2層までのフォワード処理
+    def fwd_until_l2(self, x):
         h1 = F.dropout(F.relu(self.l1(x)))
-        h2 = F.dropout(F.relu(self.l2(h1)))
+        return F.dropout(F.relu(self.l2(h1)))
+
+    # 第3層のフォワード処理
+    def fwd1(self, h2):
         return F.sigmoid(self.l3_1(h2))
 
-    def fwd2(self, x):
-        h1 = F.dropout(F.relu(self.l1(x)))
-        h2 = F.dropout(F.relu(self.l2(h1)))
+    def fwd2(self, h2):
         return F.sigmoid(self.l3_2(h2))
 
-    def fwd3(self, x):
-        h1 = F.dropout(F.relu(self.l1(x)))
-        h2 = F.dropout(F.relu(self.l2(h1)))
+    def fwd3(self, h2):
         return F.sigmoid(self.l3_3(h2))
 
-    def fwd4(self, x):
-        h1 = F.dropout(F.relu(self.l1(x)))
-        h2 = F.dropout(F.relu(self.l2(h1)))
+    def fwd4(self, h2):
         return F.sigmoid(self.l3_4(h2))

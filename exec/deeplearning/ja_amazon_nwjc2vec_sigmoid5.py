@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 
-import os
 import sys
 import argparse
 
 from jconvertor.word2vec import functions as w2v_func
-from ml.deeplearning.j_w2v_sigmoid5 import JW2VSigmoid5
+from ml.deeplearning.nwjc2vec_sigmoid_5 import JW2VSigmoid5
 from amazon_corpus.functions import read_amazon_corpus
 import constants
 
 
-def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, window_size, completion):
+def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, window_size):
     """
     Amazonコーパスに対して、
     sigmoidを5つ使用したモデルで、フレーズベクトルを素性として、学習・テストを行う
@@ -27,7 +26,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
     :return: なし
     """
     print("-------------------------------------")
-    print("exec_file: exec_ja_amazon_w2v_sigmoid5.py")
+    print("exec_file: ja_amazon_nwjc2vec_sigmoid5.py")
     print("start_k: " + str(start_k))
     print("end_k: " + str(end_k))
     print("start_epoch: " + str(start_epoch))
@@ -37,23 +36,16 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
     print("バッチサイズ: " + str(batchsize))
     print("GPU: " + str(gpu))
     print("ウィンドウサイズ: " + str(window_size))
-    print("補完関数: " + completion)
     print("-------------------------------------")
 
     # 実験ディレクトリ
-    experiment_dir = "amazon_corpus/j_sigmoid5_w2v/window" + str(window_size) + "/" + completion + "/"
+    experiment_dir = constants.AMAZON_DIR + "experiment/ja/sigmoid5_w2v/window" + str(window_size) + "/"
 
     # 実験で使用する補完関数を設定
-    if completion == "zero":
-        w2v_func.set_completion_func(w2v_func.create_zero_vector)
-    elif completion == "random":
-        w2v_func.set_completion_func(w2v_func.create_random_vector)
-    else:
-        sys.stderr.write("指定した補完関数が適切ではありません\n")
-        exit()
+    w2v_func.set_completion_func(w2v_func.create_random_vector)
 
     # 実験で使用するword2vecモデルを読み込む
-    w2v_func.load_w2v("/home/kaneko-takayuki/NLP/w2v_model/nwcj_word_1_200_8_25_0_1e4_32_1_15.bin")
+    w2v_func.load_w2v(constants.W2V_MODEL_DIR + "nwjc_word_1_200_8_25_0_1e4_32_1_15.bin")
 
     # k_start〜k_endで5分割交差検定
     # k: k回目の検定
@@ -111,7 +103,6 @@ if __name__ == '__main__':
     parser.add_argument("--batchsize", "-b", type=int, default=30, help='学習時のバッチサイズ')
     parser.add_argument("--gpu", "-g", type=int, default=-1, help='GPUを利用するか')
     parser.add_argument("--window_size", "-w", type=int, default=3, help='フレーズとして切り取る単位')
-    parser.add_argument("--completion", "-c", type=str, default="random", help='補完方法')
     args = parser.parse_args()
 
     main(start_k=args.start_k,
@@ -122,5 +113,4 @@ if __name__ == '__main__':
          n_mid=args.n_mid,
          batchsize=args.batchsize,
          gpu=args.gpu,
-         window_size=args.window_size,
-         completion=args.completion)
+         window_size=args.window_size)
