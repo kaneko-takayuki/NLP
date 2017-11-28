@@ -39,9 +39,6 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, n_out, batchsize, 
     print("補完関数: " + completion)
     print("-------------------------------------")
 
-    # cudaへのパス
-    os.environ["PATH"] = "/usr/local/cuda-7.5/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-
     # 実験ディレクトリ
     base = os.path.dirname(os.path.abspath(__file__))
     experiment_dir = base + "/../../amazon_corpus/lstm_w2v/random/"

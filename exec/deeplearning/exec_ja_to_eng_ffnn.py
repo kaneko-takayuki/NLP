@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import os
 import sys
 import argparse
 
@@ -12,9 +11,6 @@ from ml.deeplearning.ja_to_eng import JAtoENG
 
 
 def main(start_epoch, end_epoch, n_in, n_mid, n_out, batchsize, gpu):
-    # cudaへのパス
-    os.environ["PATH"] = "/usr/local/cuda-7.5/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-
     # ネットワークインスタンス作成
     net = JAtoENG(n_in, n_mid, n_out, batchsize, gpu)
 

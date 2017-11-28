@@ -40,9 +40,6 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
     print("補完関数: " + completion)
     print("-------------------------------------")
 
-    # pycharmから動かすとcudaへのパスが通らないので、ここでパスを追加する
-    os.environ["PATH"] = "/usr/local/cuda-7.5/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-
     # 実験ディレクトリ
     experiment_dir = constants.EN_JP_FINETUNING_DIR + "window" + str(window_size) + "/" + completion + "/"
 
