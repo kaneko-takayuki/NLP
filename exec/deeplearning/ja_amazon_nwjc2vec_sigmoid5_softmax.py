@@ -22,10 +22,11 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
     :param batchsize: バッチサイズ
     :param gpu: GPUを利用するかどうか
     :param window_size: フレーズを区切るウィンドウサイズ
+    :param patience: early stoppingに関して、様子見を行う回数
     :return: なし
     """
     print("-------------------------------------")
-    print("exec_file: ja_amazon_nwjc2vec_sigmoid5.py")
+    print("exec_file: ja_amazon_nwjc2vec_sigmoid5_softmax.py")
     print("start_k: " + str(start_k))
     print("end_k: " + str(end_k))
     print("start_epoch: " + str(start_epoch))
@@ -39,7 +40,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
     print("-------------------------------------")
 
     # 実験ディレクトリ
-    experiment_dir = constants.AMAZON_DIR + "experiment/ja/nwjc2vec_sigmoid5_majority/window" + str(window_size) + "/"
+    experiment_dir = constants.AMAZON_DIR + "experiment/ja/nwjc2vec_sigmoid5_softmax/window" + str(window_size) + "/"
 
     # 実験で使用する補完関数を設定
     w2v_func.set_completion_func(w2v_func.create_random_vector)
@@ -116,7 +117,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
 
 if __name__ == '__main__':
     # 引数パース
-    parser = argparse.ArgumentParser(description='ja_Amazonコーパスについて、nwjc2vecとsigmoid5_majorityによって5値分類する')
+    parser = argparse.ArgumentParser(description='ja_Amazonコーパスについて、nwjc2vecとsigmoid5_softmaxによって5値分類する')
     parser.add_argument("--start_k", "-ks", type=int, default=1, help='5分割中、どの分割から始めるか')
     parser.add_argument("--end_k", "-ke", type=int, default=5, help='5分割中、どの分割まで行うか')
     parser.add_argument("--start_epoch", "-se", type=int, default=1, help='どのエポックから始めるか')
