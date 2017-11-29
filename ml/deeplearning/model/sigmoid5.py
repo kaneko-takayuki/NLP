@@ -21,18 +21,22 @@ class SIGMOID5(chainer.Chain):
         )
 
     # 損失関数4種類
-    # 第2層の出力値を受け取って、誤差を返す
+    # 第2層の出力値を受け取って、出力値と誤差を返す
     def loss1(self, h2, y):
-        return F.softmax_cross_entropy(self.fwd1(h2), y)
+        output = self.fwd1(h2)
+        return output, F.mean_squared_error(output, y)
 
     def loss2(self, h2, y):
-        return F.softmax_cross_entropy(self.fwd2(h2), y)
+        output = self.fwd2(h2)
+        return output, F.mean_squared_error(output, y)
 
     def loss3(self, h2, y):
-        return F.softmax_cross_entropy(self.fwd3(h2), y)
+        output = self.fwd3(h2)
+        return output, F.mean_squared_error(output, y)
 
     def loss4(self, h2, y):
-        return F.softmax_cross_entropy(self.fwd4(h2), y)
+        output = self.fwd4(h2)
+        return output, F.mean_squared_error(output, y)
 
     # 第2層までのフォワード処理
     def fwd_until_l2(self, x):

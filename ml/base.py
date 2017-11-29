@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from abc import ABCMeta, abstractmethod
 
-
-class MLBases(metaclass=ABCMeta):
+class MLBases:
     def __init__(self):
         # 学習データ
         self.train_sentences = []
@@ -46,19 +44,3 @@ class MLBases(metaclass=ABCMeta):
         :return: テストデータ数
         """
         return len(self.test_sentences)
-
-    @abstractmethod
-    def train(self):
-        pass
-
-    @abstractmethod
-    def test(self, file_name):
-        pass
-
-    @abstractmethod
-    def convert(self, sentence, label):
-        pass
-
-    @abstractmethod
-    def output(self, file_name, sentence, corr_label, pred_labels):
-        pass

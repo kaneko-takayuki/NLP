@@ -4,12 +4,12 @@ import sys
 import argparse
 
 from jconvertor.word2vec import functions as w2v_func
-from ml.deeplearning.j_to_e_w2v_sigmoid5 import JW2VSigmoid5
+from ml.deeplearning.nwjc2vec_sigmoid_5_majority import NWJC2VECSigmoid5
 from amazon_corpus.functions import read_amazon_corpus
 import constants
 
 
-def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, window_size, completion):
+def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, window_size):
     """
     Amazonコーパスに対して、
     sigmoidを5つ使用したモデルで、フレーズベクトルを素性として、学習・テストを行う
@@ -22,11 +22,10 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
     :param batchsize: バッチサイズ
     :param gpu: GPUを利用するかどうか
     :param window_size: フレーズを区切るウィンドウサイズ
-    :param completion: 補完関数(zero, random)
     :return: なし
     """
     print("-------------------------------------")
-    print("exec_file: exec_ja_to_en_amazon_w2v_sigmoid5.py")
+    print("exec_file: ja_amazon_nwjc2vec_sigmoid5.py")
     print("start_k: " + str(start_k))
     print("end_k: " + str(end_k))
     print("start_epoch: " + str(start_epoch))
@@ -36,23 +35,16 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
     print("バッチサイズ: " + str(batchsize))
     print("GPU: " + str(gpu))
     print("ウィンドウサイズ: " + str(window_size))
-    print("補完関数: " + completion)
     print("-------------------------------------")
 
     # 実験ディレクトリ
-    experiment_dir = "amazon_corpus/j_to_e_sigmoid5_w2v/window" + str(window_size) + "/" + completion + "/"
+    experiment_dir = constants.AMAZON_DIR + "experiment/ja/nwjc2vec_sigmoid5/window" + str(window_size) + "/"
 
     # 実験で使用する補完関数を設定
-    if completion == "zero":
-        w2v_func.set_completion_func(w2v_func.create_zero_vector)
-    elif completion == "random":
-        w2v_func.set_completion_func(w2v_func.create_random_vector)
-    else:
-        sys.stderr.write("指定した補完関数が適切ではありません\n")
-        exit()
+    w2v_func.set_completion_func(w2v_func.create_random_vector)
 
     # 実験で使用するword2vecモデルを読み込む
-    w2v_func.load_w2v("/home/kaneko-takayuki/NLP/w2v_model/nwcj_word_1_200_8_25_0_1e4_32_1_15.bin")
+    w2v_func.load_w2v(constants.W2V_MODEL_DIR + "nwjc_word_1_200_8_25_0_1e4_32_1_15.bin")
 
     # k_start〜k_endで5分割交差検定
     # k: k回目の検定
@@ -61,7 +53,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
         print(str(k) + " / 5 分割目")
         print("-------------------")
         # ネットワークインスタンス作成
-        net = JW2VSigmoid5(n_in, n_mid, batchsize, gpu, window_size)
+        net = NWJC2VECSigmoid5(n_in, n_mid, batchsize, gpu, window_size)
 
         # 途中のエポックから処理を行う場合、その直前のモデルを読み込んでから学習・テストを行う
         if start_epoch != 1:
@@ -88,18 +80,19 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
 
         # 繰り返し学習・テスト
         for epoch in range(start_epoch, end_epoch+1):
-            sys.stdout.write("epoch" + str(epoch) + "...")
+            sys.stdout.write("epoch" + str(epoch) + ": ")
             sys.stdout.flush()
             net.set_train_data(train_sentences, train_labels)
             net.set_test_data(test_sentences, test_labels)
-            net.train()
+            (loss1, loss2, loss3, loss4) = net.train()
+            sys.stdout.write(str(loss1) + ' ' + str(loss2) + ' ' + str(loss3) + ' ' + str(loss4))
             net.test(experiment_dir + "out/cross_validation" + str(k) + "/epoch" + str(epoch) + ".tsv")
             net.save(experiment_dir + "model/cross_validation" + str(k) + "/epoch" + str(epoch) + "_model.npz")
-            print("完了")
+            print("")
 
 if __name__ == '__main__':
     # 引数パース
-    parser = argparse.ArgumentParser(description='Amazonコーパスについて、sigmoid5によって5値分類する')
+    parser = argparse.ArgumentParser(description='ja_Amazonコーパスについて、nwjc2vecとsigmoid5によって5値分類する')
     parser.add_argument("--start_k", "-ks", type=int, default=1, help='5分割中、どの分割から始めるか')
     parser.add_argument("--end_k", "-ke", type=int, default=5, help='5分割中、どの分割まで行うか')
     parser.add_argument("--start_epoch", "-se", type=int, default=1, help='どのエポックから始めるか')
@@ -109,7 +102,6 @@ if __name__ == '__main__':
     parser.add_argument("--batchsize", "-b", type=int, default=30, help='学習時のバッチサイズ')
     parser.add_argument("--gpu", "-g", type=int, default=-1, help='GPUを利用するか')
     parser.add_argument("--window_size", "-w", type=int, default=3, help='フレーズとして切り取る単位')
-    parser.add_argument("--completion", "-c", type=str, default="random", help='補完方法')
     args = parser.parse_args()
 
     main(start_k=args.start_k,
@@ -120,5 +112,4 @@ if __name__ == '__main__':
          n_mid=args.n_mid,
          batchsize=args.batchsize,
          gpu=args.gpu,
-         window_size=args.window_size,
-         completion=args.completion)
+         window_size=args.window_size)

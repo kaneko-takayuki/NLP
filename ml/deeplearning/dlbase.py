@@ -23,13 +23,29 @@ class DLBases(MLBases):
         self.batchsize = batchsize
         self.gpu = gpu
 
-    @abstractmethod
-    def convert(self, sentence, label):
-        pass
+        # 検証用データ
+        self.dev_sentences = []
+        self.dev_labels = []
 
-    @abstractmethod
-    def output(self, file_name, sentence, corr_label, pred_labels):
-        pass
+        # early stoppingの為に、検証用データを保持しておくリスト
+        self.dev_accuracy = []
+
+    def set_dev_data(self, ts, tl):
+        """
+        検証用データをセット
+        :param ts: 検証文章リスト <class: 'list'>
+        :param tl: 検証ラベルリスト <class: 'list'>
+        :return: なし
+        """
+        self.dev_sentences = ts
+        self.dev_labels = tl
+
+    def num_dev_data(self):
+        """
+        検証データ数を返す
+        :return: 学習データ数
+        """
+        return len(self.dev_sentences)
 
     def train(self):
         """
@@ -114,3 +130,21 @@ class DLBases(MLBases):
             chainer.cuda.get_device_from_id(self.gpu).use()
             cuda.check_cuda_available()
             self.model.model_to_gpu()
+
+    def early_stopping(self, patience):
+        """
+        early stoppingによって、学習を打ち切るかどうか判定する
+        :param patience: 様子見の回数
+        :return: 打ち切る場合True, 打ち切らない場合False
+        """
+        # early stopping判定するのに、十分な回数行われていない
+        if len(self.dev_accuracy) < patience + 1:
+            return False
+
+        # 直近patience回の間に、検証用データで最大精度が出ていれば、学習を続ける
+        threshold_accuracy = self.dev_accuracy[-(patience + 1)]
+        for accuracy in self.dev_accuracy[-patience:]:
+            if threshold_accuracy < accuracy:
+                return False
+
+        return True
