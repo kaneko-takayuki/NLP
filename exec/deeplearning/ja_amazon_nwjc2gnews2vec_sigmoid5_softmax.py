@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import os
 import sys
 import argparse
 
-from econvertor.word2vec import functions as w2v_func
-from ml.deeplearning.gnews2vec_sigmoid_5_majority import GNEWS2VECSigmoid5MAJORITY
+from jconvertor.word2vec import functions as w2v_func
+from ml.deeplearning.nwjc2gnews2vec_sigmoid5_softmax import NWJC2GNEWS2VECSigmoid5SOFTMAX
 from amazon_corpus.functions import read_amazon_corpus
 import constants
 
@@ -26,7 +27,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
     :return: なし
     """
     print("-------------------------------------")
-    print("exec_file: en_amazon_gnews2vec_sigmoid5_majority.py")
+    print("exec_file: ja_amazon_nwjc2gnews2vec_sigmoid5_softmax.py")
     print("start_k: " + str(start_k))
     print("end_k: " + str(end_k))
     print("start_epoch: " + str(start_epoch))
@@ -40,20 +41,21 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
     print("-------------------------------------")
 
     # 実験ディレクトリ
-    experiment_dir = constants.AMAZON_DIR + "experiment/en/gnews2vec_sigmoid5_majority/window" + str(window_size) + "/"
+    experiment_dir = constants.AMAZON_DIR + "experiment/ja/nwjc2gnews2vec_sigmoid5_softmax/window" + str(window_size) + "/"
+    experiment_majority_dir = constants.AMAZON_DIR + "experiment/ja/nwjc2gnews2vec_sigmoid5_majority/window" + str(window_size) + "/"
 
     # 実験で使用する補完関数を設定
     w2v_func.set_completion_func(w2v_func.create_random_vector)
 
     # 実験で使用するword2vecモデルを読み込む
-    w2v_func.load_w2v(constants.W2V_MODEL_DIR + "GoogleNews-vectors-negative300.bin")
+    w2v_func.load_w2v(constants.W2V_MODEL_DIR + "nwjc_word_1_200_8_25_0_1e4_32_1_15")
 
     # k_start〜k_endで5分割交差検定
     # k: k回目の検定
     for k in range(start_k, end_k+1):
         print(str(k) + " / 5 分割目")
         # ネットワークインスタンス作成
-        net = GNEWS2VECSigmoid5MAJORITY(n_in, n_mid, batchsize, gpu, window_size)
+        net = NWJC2GNEWS2VECSigmoid5SOFTMAX(n_in, n_mid, batchsize, gpu, window_size)
 
         # 途中のエポックから処理を行う場合、その直前のモデルを読み込んでから学習・テストを行う
         if start_epoch != 1:
@@ -72,7 +74,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
         # あらかじめ5分割しておいたデータセットを学習用とテスト用に振り分ける
         # 3/5が学習用、1/5が検証用、5/1がテスト用
         for i in range(1, 6):
-            _sentence, _label = read_amazon_corpus(constants.AMAZON_EN_BOOKDATA_DIR + "dataset" + str(i) + ".tsv")
+            _sentence, _label = read_amazon_corpus(constants.AMAZON_JP_BOOKDATA_DIR + "dataset" + str(i) + ".tsv")
 
             if ((k + i) % 5 == 0) and (patience > 0):
                 dev_sentences.extend(_sentence)  # 検証用
@@ -97,7 +99,11 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
             sys.stdout.flush()
 
             # 学習フェーズ
-            train_loss = net.train()
+            train_loss = '-'
+            if os.path.exists(experiment_majority_dir + "model/cross_validation" + str(k) + "/epoch" + str(epoch) + "_model.npz"):
+                net.load(experiment_majority_dir + "model/cross_validation" + str(k) + "/epoch" + str(epoch) + "_model.npz")
+            else:
+                train_loss = net.train()
             sys.stdout.write(str(train_loss)[:10].center(12) + '|')
             sys.stdout.flush()
 
@@ -121,7 +127,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
 
 if __name__ == '__main__':
     # 引数パース
-    parser = argparse.ArgumentParser(description='en_Amazonコーパスについて、gnews2vecとsigmoid5_majorityによって5値分類する')
+    parser = argparse.ArgumentParser(description='ja_Amazonコーパスについて、nwjc2gnews2vecとsigmoid5_softmaxによって5値分類する')
     parser.add_argument("--start_k", "-ks", type=int, default=1, help='5分割中、どの分割から始めるか')
     parser.add_argument("--end_k", "-ke", type=int, default=5, help='5分割中、どの分割まで行うか')
     parser.add_argument("--start_epoch", "-se", type=int, default=1, help='どのエポックから始めるか')

@@ -9,11 +9,11 @@ from chainer import functions as F
 
 from ml.deeplearning.dlbase import DLBases
 from ml.deeplearning.model import ffnn
-from econvertor import spliter
-from econvertor import vectorizer
+from jconvertor import spliter
+from jconvertor import vectorizer
 
 
-class GNEWS2VECFFNNSOFTMAX(DLBases):
+class NWJCS2VECFFNNSOFTMAX(DLBases):
     def __init__(self, n_in, n_mid, batchsize, gpu=-1, window_size=1):
         DLBases.__init__(self, batchsize=batchsize, gpu=gpu)
 

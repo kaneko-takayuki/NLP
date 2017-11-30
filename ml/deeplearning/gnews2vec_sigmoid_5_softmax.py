@@ -29,7 +29,7 @@ def threshold(labels, x):
     return _labels
 
 
-class GNEWS2VECSigmoid5MAJORITY(DLBases):
+class GNEWS2VECSigmoid5SOFTMAX(DLBases):
     def __init__(self, n_in, n_mid, batchsize, gpu=-1, window_size=1):
         DLBases.__init__(self, batchsize=batchsize, gpu=gpu)
 

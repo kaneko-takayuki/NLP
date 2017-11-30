@@ -4,7 +4,7 @@ import sys
 import argparse
 
 from econvertor.word2vec import functions as w2v_func
-from ml.deeplearning.gnews2vec_sigmoid_5_majority import GNEWS2VECSigmoid5MAJORITY
+from ml.deeplearning.gnews2vec_ffnn_5_majority import GNEWS2VECFFNNMAJORITY
 from amazon_corpus.functions import read_amazon_corpus
 import constants
 
@@ -12,7 +12,7 @@ import constants
 def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, window_size, patience=0):
     """
     Amazonコーパスに対して、
-    sigmoidを5つ使用したモデルで、フレーズベクトルを素性として、学習・テストを行う
+    FFNNモデルで、フレーズベクトルを素性として、学習・テストを行う
     :param start_k: 5分割交差検定において、どこから行うか
     :param end_k: 5分割交差検定において、どこまで行うか
     :param start_epoch: 開始エポック数
@@ -26,7 +26,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
     :return: なし
     """
     print("-------------------------------------")
-    print("exec_file: en_amazon_gnews2vec_sigmoid5_majority.py")
+    print("exec_file: en_amazon_gnews2vec_ffnn_majority.py")
     print("start_k: " + str(start_k))
     print("end_k: " + str(end_k))
     print("start_epoch: " + str(start_epoch))
@@ -40,7 +40,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
     print("-------------------------------------")
 
     # 実験ディレクトリ
-    experiment_dir = constants.AMAZON_DIR + "experiment/en/gnews2vec_sigmoid5_majority/window" + str(window_size) + "/"
+    experiment_dir = constants.AMAZON_DIR + "experiment/en/gnews2vec_ffnn_majority/window" + str(window_size) + "/"
 
     # 実験で使用する補完関数を設定
     w2v_func.set_completion_func(w2v_func.create_random_vector)
@@ -53,7 +53,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
     for k in range(start_k, end_k+1):
         print(str(k) + " / 5 分割目")
         # ネットワークインスタンス作成
-        net = GNEWS2VECSigmoid5MAJORITY(n_in, n_mid, batchsize, gpu, window_size)
+        net = GNEWS2VECFFNNMAJORITY(n_in, n_mid, batchsize, gpu, window_size)
 
         # 途中のエポックから処理を行う場合、その直前のモデルを読み込んでから学習・テストを行う
         if start_epoch != 1:
@@ -121,7 +121,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
 
 if __name__ == '__main__':
     # 引数パース
-    parser = argparse.ArgumentParser(description='en_Amazonコーパスについて、gnews2vecとsigmoid5_majorityによって5値分類する')
+    parser = argparse.ArgumentParser(description='en_Amazonコーパスについて、gnews2vecとffnn_majorityによって5値分類する')
     parser.add_argument("--start_k", "-ks", type=int, default=1, help='5分割中、どの分割から始めるか')
     parser.add_argument("--end_k", "-ke", type=int, default=5, help='5分割中、どの分割まで行うか')
     parser.add_argument("--start_epoch", "-se", type=int, default=1, help='どのエポックから始めるか')

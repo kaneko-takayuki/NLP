@@ -29,7 +29,7 @@ def threshold(labels, x):
     return _labels
 
 
-class NWJC2VECSigmoid5SOFTMAX(DLBases):
+class NWJC2GNEWS2VECSigmoid5MAJORITY(DLBases):
     def __init__(self, n_in, n_mid, batchsize, gpu=-1, window_size=1):
         DLBases.__init__(self, batchsize=batchsize, gpu=gpu)
 
@@ -218,7 +218,7 @@ class NWJC2VECSigmoid5SOFTMAX(DLBases):
         :return: (入力ベクトルリスト, ラベルリスト)
         """
         # 入力ベクトルリストを求める
-        inputs = vectorizer.sentence_vector(sentence, self.window_size)
+        inputs = vectorizer.sentence_vector_to_eng(sentence, self.window_size)
 
         # vectorsと同じ要素数のラベルリストを生成
         labels = [[label] for _ in range(len(inputs))]
@@ -233,7 +233,7 @@ class NWJC2VECSigmoid5SOFTMAX(DLBases):
         num_wrong = 0  # 間違えた数
 
         for i in range(num_data):
-            pred_label = self.consult_softmax(pred_labels1[i], pred_labels2[i], pred_labels3[i], pred_labels4[i])
+            pred_label = self.consult_majority(pred_labels1[i], pred_labels2[i], pred_labels3[i], pred_labels4[i])
             if pred_label == correct_labels[i]:
                 num_correct += 1
             else:
@@ -241,9 +241,9 @@ class NWJC2VECSigmoid5SOFTMAX(DLBases):
 
         return float(num_correct) / float(num_correct + num_wrong)
 
-    def consult_softmax(self, pred_labels1, pred_labels2, pred_labels3, pred_labels4):
+    def consult_majority(self, pred_labels1, pred_labels2, pred_labels3, pred_labels4):
         """
-        文章から得られる出力値について、擬似softmaxによって合議を行い、予測ラベルを返す
+        文章から得られる出力値について、多数決によって合議を行い、予測ラベルを返す
         :param pred_labels1: ラベルが1以上である予測確率リスト
         :param pred_labels2: ラベルが2以上である予測確率リスト
         :param pred_labels3: ラベルが3以上である予測確率リスト
@@ -253,35 +253,33 @@ class NWJC2VECSigmoid5SOFTMAX(DLBases):
         # フレーズの数
         num_phrase = len(pred_labels1)
 
-        # 全てのフレーズを見て、そのうち最も確信度の大きいラベルを文の予測ラベルとする
-        max_sentence_conviction_rate = 0.0
-        sentence_label = 0
+        # 1〜5の予測ラベルの個数
+        label_n = [0 for _ in range(5)]
 
         # フレーズ毎に参照していく
         for i in range(num_phrase):
             # それぞれの予測確率を見ながら、0.5を閾値として分類してフレーズの予測ラベルを求める
             if pred_labels1[i] < 0.5:
                 phrase_label = 0
-                phrase_conviction_rate = abs(pred_labels1[i] - 0.5)
             elif pred_labels2[i] < 0.5:
                 phrase_label = 1
-                phrase_conviction_rate = abs(pred_labels2[i] - 0.5)
             elif pred_labels3[i] < 0.5:
                 phrase_label = 2
-                phrase_conviction_rate = abs(pred_labels3[i] - 0.5)
             elif pred_labels4[i] < 0.5:
                 phrase_label = 3
-                phrase_conviction_rate = abs(pred_labels4[i] - 0.5)
             else:
                 phrase_label = 4
-                phrase_conviction_rate = abs(pred_labels4[i] - 0.5)
+            label_n[phrase_label] += 1
 
-            # 今参照しているフレーズと、これまでのフレーズについての結果と比較し、より確率の高いラベルを文の予測ラベルとする
-            if max_sentence_conviction_rate < phrase_conviction_rate:
-                max_sentence_conviction_rate = phrase_conviction_rate
-                sentence_label = phrase_label
+        # 1〜5の予測ラベルの個数を比較し、文章の予測ラベルを返す
+        max_sentence_label_n = 0
+        pred_sentence_label = 0
+        for i in range(5):
+            if max_sentence_label_n < label_n[i]:
+                max_sentence_label_n = label_n[i]
+                pred_sentence_label = i
 
-        return sentence_label
+        return pred_sentence_label
 
     def output(self, file_name, sentence, corr_label, pred_labels1, pred_labels2, pred_labels3, pred_labels4):
         """
@@ -299,7 +297,7 @@ class NWJC2VECSigmoid5SOFTMAX(DLBases):
         phrases = spliter.phrases(sentence, self.window_size)
 
         # 文に対する予測ラベルを出す
-        pred_label = self.consult_softmax(pred_labels1, pred_labels2, pred_labels3, pred_labels4)
+        pred_label = self.consult_majority(pred_labels1, pred_labels2, pred_labels3, pred_labels4)
 
         # 出力
         with open(file_name, 'a') as f:

@@ -9,20 +9,20 @@ from amazon_corpus.functions import read_amazon_corpus
 import constants
 
 
-def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, window_size, patience):
+def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, window_size, patience=0):
     """
     Amazonコーパスに対して、
     sigmoidを5つ使用したモデルで、フレーズベクトルを素性として、学習・テストを行う
     :param start_k: 5分割交差検定において、どこから行うか
     :param end_k: 5分割交差検定において、どこまで行うか
     :param start_epoch: 開始エポック数
-    :param end_epoch: 終了エポック数
+    :param end_epoch: 限界終了エポック数
     :param n_in: 入力次元数
     :param n_mid: 中間次元数
     :param batchsize: バッチサイズ
     :param gpu: GPUを利用するかどうか
     :param window_size: フレーズを区切るウィンドウサイズ
-    :param patience: early stoppingに関して、様子見を行う回数
+    :param patience: early stoppingに関して、様子見する回数(0の時、early stoppingはしない)
     :return: なし
     """
     print("-------------------------------------")
@@ -46,7 +46,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
     w2v_func.set_completion_func(w2v_func.create_random_vector)
 
     # 実験で使用するword2vecモデルを読み込む
-    w2v_func.load_w2v(constants.W2V_MODEL_DIR + "nwjc_word_1_200_8_25_0_1e4_32_1_15.bin")
+    w2v_func.load_w2v(constants.W2V_MODEL_DIR + "nwjc_word_1_200_8_25_0_1e4_32_1_15")
 
     # k_start〜k_endで5分割交差検定
     # k: k回目の検定
@@ -73,10 +73,11 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
         # 3/5が学習用、1/5が検証用、5/1がテスト用
         for i in range(1, 6):
             _sentence, _label = read_amazon_corpus(constants.AMAZON_JP_BOOKDATA_DIR + "dataset" + str(i) + ".tsv")
-            if (k + i) % 5 == 0:
+
+            if ((k + i) % 5 == 0) and (patience > 0):
                 dev_sentences.extend(_sentence)  # 検証用
                 dev_labels.extend(_label)
-            elif (k + i) % 5 == 1:
+            if (k + i) % 5 == 1:
                 test_sentences.extend(_sentence)  # テスト用
                 test_labels.extend(_label)
             else:
@@ -105,14 +106,17 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
             sys.stdout.write(str(test_accuracy)[:13].center(15) + '|')
             sys.stdout.flush()
 
-            # 収束検証フェーズ
-            dev_accuracy, early_stopping_flag = net.dev(patience)
-            sys.stdout.write(str(dev_accuracy)[:12].center(14) + '\n')
-            sys.stdout.flush()
-
+            # モデルの保存
             net.save(experiment_dir + "model/cross_validation" + str(k) + "/epoch" + str(epoch) + "_model.npz")
-            if early_stopping_flag:
-                break
+
+            # 収束検証フェーズ
+            if patience > 0:
+                dev_accuracy, early_stopping_flag = net.dev(patience)
+                sys.stdout.write(str(dev_accuracy)[:12].center(14))
+                sys.stdout.flush()
+                if early_stopping_flag:
+                    break
+            print()
         print("--------------------------------------------------------------")
 
 if __name__ == '__main__':

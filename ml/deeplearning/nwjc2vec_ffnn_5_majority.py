@@ -9,11 +9,11 @@ from chainer import functions as F
 
 from ml.deeplearning.dlbase import DLBases
 from ml.deeplearning.model import ffnn
-from econvertor import spliter
-from econvertor import vectorizer
+from jconvertor import spliter
+from jconvertor import vectorizer
 
 
-class GNEWS2VECFFNNSOFTMAX(DLBases):
+class NWJC2VECFFNNMAJORITY(DLBases):
     def __init__(self, n_in, n_mid, batchsize, gpu=-1, window_size=1):
         DLBases.__init__(self, batchsize=batchsize, gpu=gpu)
 
@@ -158,7 +158,7 @@ class GNEWS2VECFFNNSOFTMAX(DLBases):
         num_wrong = 0  # 間違えた数
 
         for i in range(num_data):
-            pred_label = self.consult_softmax(probabilities[i])
+            pred_label = self.consult_majority(probabilities[i])
             if pred_label == correct_labels[i]:
                 num_correct += 1
             else:
@@ -166,7 +166,7 @@ class GNEWS2VECFFNNSOFTMAX(DLBases):
 
         return float(num_correct) / float(num_correct + num_wrong)
 
-    def consult_softmax(self, phrases_probability):
+    def consult_majority(self, phrases_probability):
         """
         文章から得られる出力値について、多数決によって合議を行い、予測ラベルを返す
         :param phrases_probability: ある文章の各フレーズに対する出力リスト
@@ -175,16 +175,27 @@ class GNEWS2VECFFNNSOFTMAX(DLBases):
         # フレーズの数
         num_phrase = len(phrases_probability)
 
-        max_phrase_probability = 0.0
-        pred_sentence_label = 0
+        # 1〜5の予測ラベルの個数
+        label_n = [0 for _ in range(5)]
 
         # フレーズ毎に参照していく
         for i in range(num_phrase):
             # それぞれの予測確率を見ながら、0.5を閾値として分類してフレーズの予測ラベルを求める
+            max_phrase_probability = 0.0
+            phrase_label = 0
             for j in range(5):
                 if max_phrase_probability < phrases_probability[i][j]:
                     max_phrase_probability = phrases_probability[i][j]
-                    pred_sentence_label = j
+                    phrase_label = j
+            label_n[phrase_label] += 1
+
+        # 1〜5の予測ラベルの個数を比較し、文章の予測ラベルを返す
+        max_sentence_label_n = 0
+        pred_sentence_label = 0
+        for i in range(5):
+            if max_sentence_label_n < label_n[i]:
+                max_sentence_label_n = label_n[i]
+                pred_sentence_label = i
 
         return pred_sentence_label
 
@@ -201,7 +212,7 @@ class GNEWS2VECFFNNSOFTMAX(DLBases):
         phrases = spliter.phrases(sentence, self.window_size)
 
         # 文に対する予測ラベルを出す
-        pred_label = self.consult_softmax(phrases_probability)
+        pred_label = self.consult_majority(phrases_probability)
 
         # 出力
         with open(file_name, 'a') as f:

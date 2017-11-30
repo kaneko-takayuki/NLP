@@ -14,7 +14,7 @@ from econvertor import vectorizer
 
 
 class GNEWS2VECLSTMSVM(DLBases):
-    def __init__(self, n_in, n_mid, n_out, batchsize, gpu=-1, kernel='linear'):
+    def __init__(self, n_in, n_mid, n_out, batchsize, gpu=-1, window_size=1):
         DLBases.__init__(self, batchsize=batchsize, gpu=gpu)
 
         # モデル構築
@@ -30,8 +30,8 @@ class GNEWS2VECLSTMSVM(DLBases):
         self.optimizer = optimizers.Adam()
         self.optimizer.setup(self.model)
 
-        # パラメータを保持
-        self.kernel = kernel
+        # パラメータ保持
+        self.window_size = window_size
 
     def train(self):
         """
@@ -44,56 +44,68 @@ class GNEWS2VECLSTMSVM(DLBases):
         # 誤差の総和
         sum_loss = 0
 
-        # ランダムに順番に処理していく
-        for i in six.moves.range(self.num_train_data()):
-            # 勾配と記憶変数を初期化
-            self.model.cleargrads()
-            self.model.reset_state()
+        # batchsize個ずつのミニバッチを作成し、その単位で学習を行う
+        for i in six.moves.range(0, self.num_train_data(), self.batchsize):
+            train_inputs = []  # 学習データのミニバッチ
+            train_labels = []  # 学習ラベルのミニバッチ
 
-            # perm[i]番目のデータについて、学習ベクトルを作り出す
-            i_inputs, i_labels = self.convert(self.train_sentences[perm[i]], self.train_labels[perm[i]])
+            # ランダムにbatchsize個のデータを取り出し、convertで設定した方法で学習データを作り出す
+            for j in six.moves.range(i, i + self.batchsize):
+                if j >= self.num_train_data():
+                    break  # TODO: データの変換処理を、リスト単位で行えるようにする
+                j_inputs, j_labels = self.convert(self.train_sentences[perm[j]], self.train_labels[perm[j]])
+                train_inputs.extend(j_inputs)
+                train_labels.extend(j_labels)
 
-            # 学習用の型に変換する
-            variable_i_inputs = chainer.Variable(self.xp.asarray(np.asarray(i_inputs).astype(np.float32)))
-            variable_i_labels = chainer.Variable(self.xp.asarray(np.asarray(i_labels).astype(np.int32)))
+            # 学習データの型を学習用に変更
+            train_inputs = np.asarray(train_inputs).astype(np.float32)
+            variable_train_inputs = chainer.Variable(self.xp.asarray(train_inputs))
+            train_labels = np.asarray(train_labels).astype(np.int32)
+            variable_train_labels = chainer.Variable(self.xp.asarray(train_labels))
 
             # 学習処理
             with chainer.using_config('train', True):
-                loss = self.model(variable_i_inputs, variable_i_labels)
+                # 勾配初期化
+                self.model.cleargrads()
+
+                # 記憶変数初期化
+                self.model.reset_state()
+
+                loss = self.model(variable_train_inputs, variable_train_labels)
+                loss.backward()
                 sum_loss += loss.data
 
-            # 重み更新
-            loss.backward()
-            self.optimizer.update()
+                # 重み更新
+                self.optimizer.update()
 
         return sum_loss
 
-    def dev(self, patience):
+    def dev(self, patience, kernel='rbf'):
         """
         検証用データで精度を計算する
         :param patience: 様子見の回数
         :return: 検証データに対する正答率, early_stopping_flag
         """
-        # SVMモデル
-        svm_model = SVC(kernel=self.kernel)
-
-        # 学習データを用意
-        train_inputs = []
-        train_labels = []
-        for i in six.moves.range(self.num_train_data()):
-            i_input, _ = self.convert(self.train_sentences[i], self.train_labels[i])
+        # SVMモデルを学習
+        svm_model = SVC(kernel='rbf')
+        for train_sentence, train_label in zip(self.train_sentences, self.train_labels):
+            self.model.reset_state()
+            i_input, _ = self.convert(train_sentence, train_label)
             variable_i_input = chainer.Variable(self.xp.asarray(np.asarray(i_input).astype(np.float32)))
-            sentence_vector = np.asarray(self.model.get_compression_vector(variable_i_input).data)
-            train_inputs.append(sentence_vector)
-            train_labels.append(self.train_labels[i])
+            with chainer.using_config('train', False):
+                # TODO: LSTM学習処理
+                sentence_vector = np.asarray(self.model.get_compression_vector(variable_i_input))
+            svm_model.fit(sentence_vector, [])
 
-        # 学習
-        svm_model.fit(train_inputs, train_labels)
-        del train_inputs  # メモリ意識
-        del train_labels
+        # 1つずつテストデータを取り出し、テストを行う
+        for i in six.moves.range(self.num_dev_data()):
+            # テストを行うデータ
+            i_input, i_label = self.convert(self.dev_sentences[i], self.dev_labels[i])
+            i_input = np.asarray(i_input).astype(np.float32)
+            variable_i_input = chainer.Variable(self.xp.asarray(i_input))
 
         # 検証データに対して、正答率を計算する
-        dev_accuracy = self.calculate_accuracy(svm_model, self.dev_sentences, self.dev_labels)
+        dev_accuracy = self.calculate_accuracy(self.dev_sentences, self.dev_labels)
         self.dev_accuracy.append(dev_accuracy)
 
         return dev_accuracy, self.early_stopping(patience)
@@ -119,15 +131,17 @@ class GNEWS2VECLSTMSVM(DLBases):
             # テストを行うデータ
             i_input, i_label = self.convert(self.test_sentences[i], self.test_labels[i])
             i_input = np.asarray(i_input).astype(np.float32)
-            i_input = chainer.Variable(self.xp.asarray(i_input))
+            variable_i_input = chainer.Variable(self.xp.asarray(i_input))
 
             # ラベルの予測
             with chainer.using_config('train', False):
-                value_until_l2 = self.model.fwd_until_l2(i_input)
-                i_pred_labels1 = self.model.fwd1(value_until_l2).data
-                i_pred_labels2 = self.model.fwd2(value_until_l2).data
-                i_pred_labels3 = self.model.fwd3(value_until_l2).data
-                i_pred_labels4 = self.model.fwd4(value_until_l2).data
+                # 第2層までは処理が共通なので、先に計算して結果を保持しておく
+                h2 = self.model.fwd_until_l2(variable_i_input)
+
+                i_pred_labels1 = self.model.fwd1(h2).data
+                i_pred_labels2 = self.model.fwd2(h2).data
+                i_pred_labels3 = self.model.fwd3(h2).data
+                i_pred_labels4 = self.model.fwd4(h2).data
 
                 # 正答率計算用に出力値を保持しておく
                 pred_labels1.append(i_pred_labels1)
@@ -136,7 +150,13 @@ class GNEWS2VECLSTMSVM(DLBases):
                 pred_labels4.append(i_pred_labels4)
 
             # 出力処理
-            self.output(file_name, self.test_sentences[i], self.test_labels[i], i_pred_labels1, i_pred_labels2, i_pred_labels3, i_pred_labels4)
+            self.output(file_name,
+                        self.test_sentences[i],
+                        self.test_labels[i],
+                        i_pred_labels1,
+                        i_pred_labels2,
+                        i_pred_labels3,
+                        i_pred_labels4)
 
         # 検証データに対して、正答率を計算する
         test_accuracy = self.calculate_accuracy(self.test_labels,
@@ -155,33 +175,30 @@ class GNEWS2VECLSTMSVM(DLBases):
         :return: (入力ベクトルリスト, ラベルリスト)
         """
         # 入力ベクトルリストを求める
-        inputs = vectorizer.sentence_vector(sentence, self.window_size)
+        inputs = vectorizer.sentence_vector(sentence)
 
         # vectorsと同じ要素数のラベルリストを生成
-        # 最後だけlabelで、それ以外は-1を入れる(-1の箇所は、無視されるから)
-        labels = [-1 for _ in range(len(inputs))]
+        # 最後だけラベルを付ける(-1の時、softmax_cross_entropyでは無視される)
+        labels = [-1 for _ in range(len(inputs) - 1)]
         labels.append(label)
 
         return inputs, labels
 
-    def calculate_accuracy(self, svm_model, test_sentences, test_labels):
-        # テストデータ数
-        num_test = len(test_sentences)
+    def calculate_accuracy(self, correct_labels, pred_labels1, pred_labels2, pred_labels3, pred_labels4):
+        # データ数を確認
+        num_data = len(correct_labels)
 
-        # 学習データを用意
-        train_inputs = []
-        train_labels = []
-        for i in six.moves.range(num_test):
-            i_input, _ = self.convert(test_sentences[i], test_labels)
-            variable_i_input = chainer.Variable(self.xp.asarray(np.asarray(i_input).astype(np.float32)))
-            sentence_vector = np.asarray(self.model.get_compression_vector(variable_i_input).data)
-            train_inputs.append(sentence_vector)
-            train_labels.append(test_labels[i])
+        num_correct = 0  # 正解した数
+        num_wrong = 0  # 間違えた数
 
-        # テスト
-        test_result = svm_model.predict(train_inputs)
+        for i in range(num_data):
+            pred_label = self.consult_majority(pred_labels1[i], pred_labels2[i], pred_labels3[i], pred_labels4[i])
+            if pred_label == correct_labels[i]:
+                num_correct += 1
+            else:
+                num_wrong += 1
 
-        # TODO: テスト結果を確認する
+        return float(num_correct) / float(num_correct + num_wrong)
 
     def consult_majority(self, pred_labels1, pred_labels2, pred_labels3, pred_labels4):
         """
