@@ -12,3 +12,4 @@ nohup.out
 preparation/wnjpn.db
 ja_eng_lib/
 constants.py
+log/

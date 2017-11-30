@@ -1,40 +1,24 @@
 # -*- coding: utf-8 -*-
 
-import copy
 import numpy as np
 import six
 import chainer
 from chainer import optimizers
 from chainer import cuda
+from sklearn.svm import SVC
 
 from ml.deeplearning.dlbase import DLBases
-from ml.deeplearning.model import sigmoid5
-from jconvertor import spliter
-from jconvertor import vectorizer
+from ml.deeplearning.model import lstm
+from econvertor import spliter
+from econvertor import vectorizer
 
 
-def threshold(labels, x):
-    """
-    labelsのそれぞれに対して、xより大きいものを1、それ以外を0となるように変換する
-    :param labels: ラベルリスト
-    :param x: 閾値
-    :return: 変換済ラベルリスト
-    """
-    _labels = copy.deepcopy(labels)
-    for i in range(len(_labels)):
-        if _labels[i] <= x:
-            _labels[i] = 0
-        else:
-            _labels[i] = 1
-    return _labels
-
-
-class NWJC2VECSigmoid5MAJORITY(DLBases):
-    def __init__(self, n_in, n_mid, batchsize, gpu=-1, window_size=1):
+class GNEWS2VECLSTMSVM(DLBases):
+    def __init__(self, n_in, n_mid, n_out, batchsize, gpu=-1, kernel='linear'):
         DLBases.__init__(self, batchsize=batchsize, gpu=gpu)
 
         # モデル構築
-        self.model = sigmoid5.SIGMOID5(n_in, n_mid)
+        self.model = lstm.LSTM(n_in, n_mid, n_out)
 
         # モデルに対するGPU設定
         if gpu >= 0:
@@ -46,8 +30,8 @@ class NWJC2VECSigmoid5MAJORITY(DLBases):
         self.optimizer = optimizers.Adam()
         self.optimizer.setup(self.model)
 
-        # パラメータ保持
-        self.window_size = window_size
+        # パラメータを保持
+        self.kernel = kernel
 
     def train(self):
         """
@@ -60,53 +44,27 @@ class NWJC2VECSigmoid5MAJORITY(DLBases):
         # 誤差の総和
         sum_loss = 0
 
-        # batchsize個ずつのミニバッチを作成し、その単位で学習を行う
-        for i in six.moves.range(0, self.num_train_data() - self.batchsize, self.batchsize):
-            # 勾配初期化
+        # ランダムに順番に処理していく
+        for i in six.moves.range(self.num_train_data()):
+            # 勾配と記憶変数を初期化
             self.model.cleargrads()
+            self.model.reset_state()
 
-            train_inputs = []  # 学習データのミニバッチ
-            train_labels = []  # 学習ラベルのミニバッチ
+            # perm[i]番目のデータについて、学習ベクトルを作り出す
+            i_inputs, i_labels = self.convert(self.train_sentences[perm[i]], self.train_labels[perm[i]])
 
-            # ランダムにbatchsize個のデータを取り出し、convertで設定した方法で学習データを作り出す
-            for j in six.moves.range(i, i + self.batchsize):
-                j_inputs, j_labels = self.convert(self.train_sentences[perm[j]], self.train_labels[perm[j]])
-                train_inputs.extend(j_inputs)
-                train_labels.extend(j_labels)
-
-            # 学習データの型を学習用に変更
-            train_inputs = np.asarray(train_inputs).astype(np.float32)
-            variable_train_inputs = chainer.Variable(self.xp.asarray(train_inputs))
-            train_labels = np.asarray(train_labels).astype(np.float32)
+            # 学習用の型に変換する
+            variable_i_inputs = chainer.Variable(self.xp.asarray(np.asarray(i_inputs).astype(np.float32)))
+            variable_i_labels = chainer.Variable(self.xp.asarray(np.asarray(i_labels).astype(np.int32)))
 
             # 学習処理
             with chainer.using_config('train', True):
-                # ラベルが1以上かどうかの学習
-                variable_train_labels = chainer.Variable(self.xp.asarray(threshold(train_labels, 0)))
-                pred_label1, loss1 = self.model.loss1(variable_train_inputs, variable_train_labels)
-                sum_loss += loss1.data
-                loss1.backward()
+                loss = self.model(variable_i_inputs, variable_i_labels)
+                sum_loss += loss.data
 
-                # ラベルが2以上かどうかの学習
-                variable_train_labels = chainer.Variable(self.xp.asarray(threshold(train_labels, 1)))
-                pred_label2, loss2 = self.model.loss2(variable_train_inputs, variable_train_labels)
-                sum_loss += loss2.data
-                loss2.backward()
-
-                # ラベルが3以上かどうかの学習
-                variable_train_labels = chainer.Variable(self.xp.asarray(threshold(train_labels, 2)))
-                pred_label3, loss3 = self.model.loss3(variable_train_inputs, variable_train_labels)
-                sum_loss += loss3.data
-                loss3.backward()
-
-                # ラベルが4以上かどうかの学習
-                variable_train_labels = chainer.Variable(self.xp.asarray(threshold(train_labels, 3)))
-                pred_label4, loss4 = self.model.loss4(variable_train_inputs, variable_train_labels)
-                sum_loss += loss4.data
-                loss4.backward()
-
-                # 重み更新
-                self.optimizer.update()
+            # 重み更新
+            loss.backward()
+            self.optimizer.update()
 
         return sum_loss
 
@@ -116,32 +74,26 @@ class NWJC2VECSigmoid5MAJORITY(DLBases):
         :param patience: 様子見の回数
         :return: 検証データに対する正答率, early_stopping_flag
         """
-        # 確率計算用に出力結果を保持する
-        pred_labels1 = []
-        pred_labels2 = []
-        pred_labels3 = []
-        pred_labels4 = []
+        # SVMモデル
+        svm_model = SVC(kernel=self.kernel)
 
-        # 1つずつテストデータを取り出し、テストを行う
-        for i in six.moves.range(self.num_dev_data()):
-            # テストを行うデータ
-            i_input, i_label = self.convert(self.dev_sentences[i], self.dev_labels[i])
-            i_input = np.asarray(i_input).astype(np.float32)
-            i_input = chainer.Variable(self.xp.asarray(i_input))
+        # 学習データを用意
+        train_inputs = []
+        train_labels = []
+        for i in six.moves.range(self.num_train_data()):
+            i_input, _ = self.convert(self.train_sentences[i], self.train_labels[i])
+            variable_i_input = chainer.Variable(self.xp.asarray(np.asarray(i_input).astype(np.float32)))
+            sentence_vector = np.asarray(self.model.get_compression_vector(variable_i_input).data)
+            train_inputs.append(sentence_vector)
+            train_labels.append(self.train_labels[i])
 
-            # ラベルの予測
-            with chainer.using_config('train', False):
-                pred_labels1.append(self.model.fwd1(i_input).data)
-                pred_labels2.append(self.model.fwd2(i_input).data)
-                pred_labels3.append(self.model.fwd3(i_input).data)
-                pred_labels4.append(self.model.fwd4(i_input).data)
+        # 学習
+        svm_model.fit(train_inputs, train_labels)
+        del train_inputs  # メモリ意識
+        del train_labels
 
         # 検証データに対して、正答率を計算する
-        dev_accuracy = self.calculate_accuracy(self.dev_labels,
-                                               pred_labels1,
-                                               pred_labels2,
-                                               pred_labels3,
-                                               pred_labels4)
+        dev_accuracy = self.calculate_accuracy(svm_model, self.dev_sentences, self.dev_labels)
         self.dev_accuracy.append(dev_accuracy)
 
         return dev_accuracy, self.early_stopping(patience)
@@ -171,10 +123,11 @@ class NWJC2VECSigmoid5MAJORITY(DLBases):
 
             # ラベルの予測
             with chainer.using_config('train', False):
-                i_pred_labels1 = self.model.fwd1(i_input).data
-                i_pred_labels2 = self.model.fwd2(i_input).data
-                i_pred_labels3 = self.model.fwd3(i_input).data
-                i_pred_labels4 = self.model.fwd4(i_input).data
+                value_until_l2 = self.model.fwd_until_l2(i_input)
+                i_pred_labels1 = self.model.fwd1(value_until_l2).data
+                i_pred_labels2 = self.model.fwd2(value_until_l2).data
+                i_pred_labels3 = self.model.fwd3(value_until_l2).data
+                i_pred_labels4 = self.model.fwd4(value_until_l2).data
 
                 # 正答率計算用に出力値を保持しておく
                 pred_labels1.append(i_pred_labels1)
@@ -205,25 +158,30 @@ class NWJC2VECSigmoid5MAJORITY(DLBases):
         inputs = vectorizer.sentence_vector(sentence, self.window_size)
 
         # vectorsと同じ要素数のラベルリストを生成
-        labels = [[label] for _ in range(len(inputs))]
+        # 最後だけlabelで、それ以外は-1を入れる(-1の箇所は、無視されるから)
+        labels = [-1 for _ in range(len(inputs))]
+        labels.append(label)
 
         return inputs, labels
 
-    def calculate_accuracy(self, correct_labels, pred_labels1, pred_labels2, pred_labels3, pred_labels4):
-        # データ数を確認
-        num_data = len(correct_labels)
+    def calculate_accuracy(self, svm_model, test_sentences, test_labels):
+        # テストデータ数
+        num_test = len(test_sentences)
 
-        num_correct = 0  # 正解した数
-        num_wrong = 0  # 間違えた数
+        # 学習データを用意
+        train_inputs = []
+        train_labels = []
+        for i in six.moves.range(num_test):
+            i_input, _ = self.convert(test_sentences[i], test_labels)
+            variable_i_input = chainer.Variable(self.xp.asarray(np.asarray(i_input).astype(np.float32)))
+            sentence_vector = np.asarray(self.model.get_compression_vector(variable_i_input).data)
+            train_inputs.append(sentence_vector)
+            train_labels.append(test_labels[i])
 
-        for i in range(num_data):
-            pred_label = self.consult_majority(pred_labels1[i], pred_labels2[i], pred_labels3[i], pred_labels4[i])
-            if pred_label == correct_labels[i]:
-                num_correct += 1
-            else:
-                num_wrong += 1
+        # テスト
+        test_result = svm_model.predict(train_inputs)
 
-        return float(num_correct) / float(num_correct + num_wrong)
+        # TODO: テスト結果を確認する
 
     def consult_majority(self, pred_labels1, pred_labels2, pred_labels3, pred_labels4):
         """

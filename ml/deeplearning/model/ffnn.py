@@ -24,7 +24,8 @@ class FFNN(chainer.Chain):
         :param y: 教師ラベル
         :return: 誤差
         """
-        return F.softmax_cross_entropy(self.fwd(x), y)
+        output = self.fwd(x)
+        return output, F.softmax_cross_entropy(output, y)
 
     def fwd(self, x):
         """

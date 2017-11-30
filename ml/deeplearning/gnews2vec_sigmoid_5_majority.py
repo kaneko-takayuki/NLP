@@ -23,9 +23,9 @@ def threshold(labels, x):
     _labels = copy.deepcopy(labels)
     for i in range(len(_labels)):
         if _labels[i] <= x:
-            _labels[i] = 0
+            _labels[i] = 0.0
         else:
-            _labels[i] = 1
+            _labels[i] = 1.0
     return _labels
 
 
@@ -61,15 +61,14 @@ class GNEWS2VECSigmoid5MAJORITY(DLBases):
         sum_loss = 0
 
         # batchsize個ずつのミニバッチを作成し、その単位で学習を行う
-        for i in six.moves.range(0, self.num_train_data() - self.batchsize, self.batchsize):
-            # 勾配初期化
-            self.model.cleargrads()
-
+        for i in six.moves.range(0, self.num_train_data(), self.batchsize):
             train_inputs = []  # 学習データのミニバッチ
             train_labels = []  # 学習ラベルのミニバッチ
 
             # ランダムにbatchsize個のデータを取り出し、convertで設定した方法で学習データを作り出す
             for j in six.moves.range(i, i + self.batchsize):
+                if j >= self.num_train_data():
+                    break  # TODO: データの変換処理を、リスト単位で行えるようにする
                 j_inputs, j_labels = self.convert(self.train_sentences[perm[j]], self.train_labels[perm[j]])
                 train_inputs.extend(j_inputs)
                 train_labels.extend(j_labels)
@@ -81,36 +80,37 @@ class GNEWS2VECSigmoid5MAJORITY(DLBases):
 
             # 学習処理
             with chainer.using_config('train', True):
+                # 勾配初期化
+                self.model.cleargrads()
 
-                # 第2層までの出力値を保持しておく
-                value_until_l2 = self.model.fwd_until_l2(variable_train_inputs)
+                # 第2層までは処理が共通なので、先に計算して結果を保持しておく
+                h2 = self.model.fwd_until_l2(variable_train_inputs)
 
                 # ラベルが1以上かどうかの学習
                 variable_train_labels = chainer.Variable(self.xp.asarray(threshold(train_labels, 0)))
-                pred_label1, loss1 = self.model.loss1(value_until_l2, variable_train_labels)
-                sum_loss += loss1.data
+                _, loss1 = self.model.loss1(h2, variable_train_labels)
                 loss1.backward()
 
                 # ラベルが2以上かどうかの学習
                 variable_train_labels = chainer.Variable(self.xp.asarray(threshold(train_labels, 1)))
-                pred_label2, loss2 = self.model.loss2(value_until_l2, variable_train_labels)
-                sum_loss += loss2.data
+                _, loss2 = self.model.loss2(h2, variable_train_labels)
                 loss2.backward()
 
                 # ラベルが3以上かどうかの学習
                 variable_train_labels = chainer.Variable(self.xp.asarray(threshold(train_labels, 2)))
-                pred_label3, loss3 = self.model.loss3(value_until_l2, variable_train_labels)
-                sum_loss += loss3.data
+                _, loss3 = self.model.loss3(h2, variable_train_labels)
                 loss3.backward()
 
                 # ラベルが4以上かどうかの学習
                 variable_train_labels = chainer.Variable(self.xp.asarray(threshold(train_labels, 3)))
-                pred_label4, loss4 = self.model.loss4(value_until_l2, variable_train_labels)
-                sum_loss += loss4.data
+                _, loss4 = self.model.loss4(h2, variable_train_labels)
                 loss4.backward()
 
                 # 重み更新
                 self.optimizer.update()
+
+                # sum_lossは全ての出力の誤差総和とする
+                sum_loss += (loss1.data + loss2.data + loss3.data + loss4.data)
 
         return sum_loss
 
@@ -131,15 +131,17 @@ class GNEWS2VECSigmoid5MAJORITY(DLBases):
             # テストを行うデータ
             i_input, i_label = self.convert(self.dev_sentences[i], self.dev_labels[i])
             i_input = np.asarray(i_input).astype(np.float32)
-            i_input = chainer.Variable(self.xp.asarray(i_input))
+            variable_i_input = chainer.Variable(self.xp.asarray(i_input))
 
             # ラベルの予測
             with chainer.using_config('train', False):
-                value_until_l2 = self.model.fwd_until_l2(i_input)
-                pred_labels1.append(self.model.fwd1(value_until_l2).data)
-                pred_labels2.append(self.model.fwd2(value_until_l2).data)
-                pred_labels3.append(self.model.fwd3(value_until_l2).data)
-                pred_labels4.append(self.model.fwd4(value_until_l2).data)
+                # 第2層までは処理が共通なので、先に計算して結果を保持しておく
+                h2 = self.model.fwd_until_l2(variable_i_input)
+
+                pred_labels1.append(self.model.fwd1(h2).data)
+                pred_labels2.append(self.model.fwd2(h2).data)
+                pred_labels3.append(self.model.fwd3(h2).data)
+                pred_labels4.append(self.model.fwd4(h2).data)
 
         # 検証データに対して、正答率を計算する
         dev_accuracy = self.calculate_accuracy(self.dev_labels,
@@ -172,15 +174,17 @@ class GNEWS2VECSigmoid5MAJORITY(DLBases):
             # テストを行うデータ
             i_input, i_label = self.convert(self.test_sentences[i], self.test_labels[i])
             i_input = np.asarray(i_input).astype(np.float32)
-            i_input = chainer.Variable(self.xp.asarray(i_input))
+            variable_i_input = chainer.Variable(self.xp.asarray(i_input))
 
             # ラベルの予測
             with chainer.using_config('train', False):
-                value_until_l2 = self.model.fwd_until_l2(i_input)
-                i_pred_labels1 = self.model.fwd1(value_until_l2).data
-                i_pred_labels2 = self.model.fwd2(value_until_l2).data
-                i_pred_labels3 = self.model.fwd3(value_until_l2).data
-                i_pred_labels4 = self.model.fwd4(value_until_l2).data
+                # 第2層までは処理が共通なので、先に計算して結果を保持しておく
+                h2 = self.model.fwd_until_l2(variable_i_input)
+
+                i_pred_labels1 = self.model.fwd1(h2).data
+                i_pred_labels2 = self.model.fwd2(h2).data
+                i_pred_labels3 = self.model.fwd3(h2).data
+                i_pred_labels4 = self.model.fwd4(h2).data
 
                 # 正答率計算用に出力値を保持しておく
                 pred_labels1.append(i_pred_labels1)
@@ -189,7 +193,13 @@ class GNEWS2VECSigmoid5MAJORITY(DLBases):
                 pred_labels4.append(i_pred_labels4)
 
             # 出力処理
-            self.output(file_name, self.test_sentences[i], self.test_labels[i], i_pred_labels1, i_pred_labels2, i_pred_labels3, i_pred_labels4)
+            self.output(file_name,
+                        self.test_sentences[i],
+                        self.test_labels[i],
+                        i_pred_labels1,
+                        i_pred_labels2,
+                        i_pred_labels3,
+                        i_pred_labels4)
 
         # 検証データに対して、正答率を計算する
         test_accuracy = self.calculate_accuracy(self.test_labels,
