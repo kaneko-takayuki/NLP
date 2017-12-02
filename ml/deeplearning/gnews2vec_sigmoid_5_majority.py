@@ -201,7 +201,7 @@ class GNEWS2VECSigmoid5MAJORITY(DLBases):
                         i_pred_labels3,
                         i_pred_labels4)
 
-        # 検証データに対して、正答率を計算する
+        # テストデータに対して、正答率を計算する
         test_accuracy = self.calculate_accuracy(self.test_labels,
                                                 pred_labels1,
                                                 pred_labels2,
