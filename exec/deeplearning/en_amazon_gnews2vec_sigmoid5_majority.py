@@ -115,6 +115,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
                 sys.stdout.write(str(dev_accuracy)[:12].center(14))
                 sys.stdout.flush()
                 if early_stopping_flag:
+                    print()
                     break
             print()
         print("--------------------------------------------------------------")
