@@ -77,7 +77,7 @@ def main(start_k, end_k, start_epoch, end_epoch, n_in, n_mid, batchsize, gpu, wi
             if ((k + i) % 5 == 0) and (patience > 0):
                 dev_sentences.extend(_sentence)  # 検証用
                 dev_labels.extend(_label)
-            if (k + i) % 5 == 1:
+            elif (k + i) % 5 == 1:
                 test_sentences.extend(_sentence)  # テスト用
                 test_labels.extend(_label)
             else:
