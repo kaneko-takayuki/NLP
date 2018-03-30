@@ -1,15 +1,7 @@
-*~
-.DS_Store
-__pycache__/
-.idea/
-amazon_corpus/
-tsukuba_corpus/
-w2v_model/
-*.sh
-shape/
-log.txt
-nohup.out
-preparation/wnjpn.db
-ja_eng_lib/
+# pythonファイルのホワイトリスト
+*
+!.gitignore
+!*/
+!*.py
 constants.py
-log/
+!README.md
